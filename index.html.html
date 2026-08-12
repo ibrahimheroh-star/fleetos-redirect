@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FleetOS GO</title>
+<style>
+  body {
+    font-family: -apple-system, Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    background: #f5f5f5;
+    text-align: center;
+  }
+  .box { padding: 20px; }
+  a {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 12px 24px;
+    background: #0f6e56;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 8px;
+  }
+</style>
+</head>
+<body>
+  <div class="box">
+    <p>جاري تحويلك لتطبيق FleetOS GO...</p>
+    <p>إذا لم يتم التحويل تلقائيًا، اضغط الرابط المناسب:</p>
+    <a id="fallback" href="https://apps.apple.com/ae/app/fleetos-go/id6762113989">فتح في المتجر</a>
+  </div>
+
+<script>
+  var IOS_URL = "https://apps.apple.com/ae/app/fleetos-go/id6762113989";
+  var ANDROID_URL = "https://play.google.com/store/apps/details?id=com.leadtime.booking";
+
+  var ua = navigator.userAgent || navigator.vendor || window.opera;
+
+  function isIOS() {
+    return /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+  }
+  function isAndroid() {
+    return /android/i.test(ua);
+  }
+
+  var target = IOS_URL; // افتراضي
+  if (isAndroid()) {
+    target = ANDROID_URL;
+  } else if (isIOS()) {
+    target = IOS_URL;
+  }
+
+  document.getElementById("fallback").href = target;
+  window.location.replace(target);
+</script>
+</body>
+</html>
