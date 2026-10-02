@@ -6,13 +6,16 @@
 <title>For Noor</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #0b0d14;
-    --ink: #ece7dd;
-    --muted: #8d8a85;
-    --gold: #d9b877;
+    --ink: #f3eee4;
+    --muted: #b3afa6;
+    --gold: #e0be7c;
+    --blue: #4da3ff;
+    --ew: 230px;                       /* envelope width */
+    --eh: calc(var(--ew) * .64);       /* envelope height */
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; }
@@ -34,68 +37,96 @@
   }
   .hidden { opacity: 0; pointer-events: none; position: absolute; inset: 0; visibility: hidden; }
 
-  /* ---------- Intro ---------- */
+  /* ---------- Intro (wider, heavier type) ---------- */
   .eyebrow {
-    font-size: 15px; letter-spacing: .45em; text-transform: uppercase; color: var(--muted);
+    font-weight: 600; font-size: clamp(15px, 4.2vw, 21px); letter-spacing: .36em; padding-left: .36em; white-space: nowrap;
+    text-transform: uppercase; color: var(--muted);
     opacity: 0; animation: rise 2s ease .4s forwards;
   }
   .name {
-    font-weight: 300; font-size: clamp(64px, 18vw, 140px); letter-spacing: .08em;
-    margin: 18px 0 34px; color: var(--ink);
-    text-shadow: 0 0 40px rgba(217, 184, 119, .35);
+    font-weight: 700; font-size: clamp(80px, 24vw, 170px); letter-spacing: .1em; padding-left: .1em;
+    margin: 14px 0 38px; color: var(--ink);
+    text-shadow: 0 0 40px rgba(224, 190, 124, .35);
     opacity: 0; animation: rise 2.4s ease 1.2s forwards, glow 6s ease-in-out 3.6s infinite;
   }
   .btn {
-    font-family: inherit; font-size: 15px; letter-spacing: .35em; text-transform: uppercase;
+    font-family: inherit; font-weight: 700; font-size: clamp(16px, 4.4vw, 20px);
+    letter-spacing: .4em; padding: 18px 20px 18px calc(20px + .4em); text-transform: uppercase;
+    min-width: 220px;
     color: var(--gold); background: transparent;
-    border: 1px solid rgba(217, 184, 119, .5); padding: 14px 34px; cursor: pointer;
+    border: 2px solid rgba(224, 190, 124, .7); cursor: pointer;
     opacity: 0; animation: rise 2s ease 2.6s forwards;
     transition: background .5s, color .5s, border-color .5s;
   }
   .btn:hover { background: var(--gold); color: var(--bg); border-color: var(--gold); }
 
-  /* ---------- Lyrics ---------- */
-  #stage { padding-bottom: 150px; }
+  /* ---------- Stage ---------- */
+  #stage { justify-content: flex-start; padding: 5vh 20px 0; }
   #lyrics { width: 100%; max-width: 560px; direction: rtl; }
   .line {
-    font-family: "Amiri", serif; font-size: clamp(21px, 5.6vw, 27px); line-height: 1.95;
-    min-height: 1.95em; color: var(--ink);
-    opacity: .45; transition: opacity 1.2s ease;
+    font-family: "Amiri", serif; font-size: clamp(18px, 3.3vh, 25px); line-height: 1.85;
+    color: var(--ink); opacity: 0;
+    transform: translateY(var(--dy, 0px)) scale(.4);
+    transition: transform 1.3s cubic-bezier(.2, .8, .25, 1), opacity 1s ease;
   }
+  .line.show   { opacity: .5; transform: none; }
   .line.active { opacity: 1; }
-  .line span { display: inline-block; opacity: 0; transform: translateY(8px); transition: opacity .7s ease, transform .7s ease; }
-  .line span.show { opacity: 1; transform: none; }
 
-  /* ---------- Signature ---------- */
   .signature {
     font-family: "Aref Ruqaa", "Amiri", serif; font-weight: 700;
-    font-size: clamp(38px, 11vw, 58px); color: var(--gold);
-    direction: rtl; transform: rotate(-5deg); margin-top: 26px;
-    text-shadow: 0 0 24px rgba(217, 184, 119, .3);
+    font-size: clamp(36px, 10vw, 54px); color: var(--gold);
+    direction: rtl; transform: rotate(-5deg); margin-top: 14px;
+    text-shadow: 0 0 24px rgba(224, 190, 124, .3);
     clip-path: inset(0 0 0 100%); transition: clip-path 2.6s ease-out;
   }
   .signature.show { clip-path: inset(0 0 0 0); }
-  #replay {
-    margin-top: 26px; font-size: 13px; padding: 10px 24px; animation: none;
-    opacity: 0; pointer-events: none; transition: opacity 1.5s ease, background .5s, color .5s;
-  }
-  #replay.show { opacity: 1; pointer-events: auto; }
 
-  /* ---------- Waveform ---------- */
-  #wave {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 3; height: 110px;
-    padding: 0 20px 26px; display: flex; align-items: flex-end; justify-content: center; gap: 3px;
-    background: linear-gradient(to top, rgba(11, 13, 20, .95), rgba(11, 13, 20, 0));
-    opacity: 0; transition: opacity 2s ease; pointer-events: none;
+  /* ---------- Envelope ---------- */
+  #env {
+    position: fixed; left: 50%; z-index: 4;
+    width: var(--ew); height: var(--eh); margin-left: calc(var(--ew) / -2);
+    bottom: calc(50% - var(--eh) / 2);
+    perspective: 900px; cursor: pointer; -webkit-tap-highlight-color: transparent;
+    opacity: 0; pointer-events: none;
+    transform-origin: bottom center;
+    transition: bottom 1.5s cubic-bezier(.6, 0, .2, 1), transform 1.5s cubic-bezier(.6, 0, .2, 1), opacity 1.6s ease;
   }
-  #wave.on { opacity: 1; }
-  #wave i {
-    display: block; flex: 1 1 0; max-width: 6px; min-width: 2px; border-radius: 2px;
-    background: rgba(236, 231, 221, .22); transition: background .3s, transform .15s;
-    transform-origin: bottom;
+  #env.ready { opacity: 1; pointer-events: auto; }
+  #env.docked { bottom: 100px; transform: scale(.72); }
+  .env-inner { position: relative; width: 100%; height: 100%; animation: float 4s ease-in-out infinite; }
+  #env.docked .env-inner, #env.open .env-inner { animation: none; }
+  .env-back {
+    position: absolute; inset: 0; background: #e7e3d9; border-radius: 6px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .55), 0 0 70px rgba(255, 255, 255, .10);
   }
-  #wave i.played { background: var(--gold); }
-  #wave i.now { background: #fff; transform: scaleY(1.12); }
+  .env-front {
+    position: absolute; inset: 0; border-radius: 6px; z-index: 2;
+    background: #ffffff; clip-path: polygon(0 0, 50% 54%, 100% 0, 100% 100%, 0 100%);
+  }
+  .env-front::after {            /* bottom fold, slightly darker */
+    content: ""; position: absolute; inset: 0; background: #f3f1ea;
+    clip-path: polygon(0 100%, 50% 46%, 100% 100%);
+  }
+  .env-flap {
+    position: absolute; left: 0; top: 0; width: 100%; height: 56%; z-index: 3;
+    background: linear-gradient(#ffffff 30%, #e9e5db); clip-path: polygon(0 0, 100% 0, 50% 100%);
+    transform-origin: top center; transition: transform .9s cubic-bezier(.5, 0, .2, 1), z-index 0s;
+  }
+  #env.open .env-flap { transform: rotateX(180deg); z-index: 1; transition: transform .9s cubic-bezier(.5, 0, .2, 1), z-index 0s .45s; filter: brightness(.93); }
+  .env-hint {
+    position: absolute; top: calc(100% + 26px); left: 0; right: 0; text-align: center;
+    font-weight: 600; font-size: 15px; letter-spacing: .4em; text-transform: uppercase; color: var(--muted);
+    animation: pulse 2.4s ease-in-out infinite; transition: opacity .8s ease;
+  }
+  #env.open .env-hint { opacity: 0; animation: none; }
+  #env.docked.ended .env-hint { opacity: 1; animation: pulse 2.4s ease-in-out infinite; font-size: 20px; top: calc(100% + 16px); }
+
+  /* ---------- Sound line (blue) ---------- */
+  #scope {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 3; width: 100%; height: 100px;
+    pointer-events: none; opacity: 0; transition: opacity 2s ease;
+  }
+  #scope.on { opacity: 1; }
 
   /* ---------- Sync helper (?sync) ---------- */
   #sync {
@@ -105,14 +136,14 @@
   #sync textarea { width: 100%; height: 70px; margin-top: 6px; font: 12px monospace; }
 
   @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
-  @keyframes blink { 50% { opacity: 0; } }
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  @keyframes pulse { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
   @keyframes glow {
-    0%, 100% { text-shadow: 0 0 40px rgba(217, 184, 119, .25); }
-    50%      { text-shadow: 0 0 70px rgba(217, 184, 119, .6); }
+    0%, 100% { text-shadow: 0 0 40px rgba(224, 190, 124, .25); }
+    50%      { text-shadow: 0 0 70px rgba(224, 190, 124, .6); }
   }
-  @media (prefers-reduced-motion: reduce) {
-    .signature { transition-duration: .01s; }
-  }
+  @media (max-height: 720px) { :root { --ew: 190px; } #env.docked { bottom: 92px; } .line { font-size: clamp(17px, 3vh, 25px); } }
+  @media (prefers-reduced-motion: reduce) { .signature { transition-duration: .01s; } }
 </style>
 </head>
 <body>
@@ -129,19 +160,27 @@
 
 <section id="stage" class="screen hidden">
   <div id="lyrics"></div>
-  <div class="signature" id="signature">من إبراهيم</div>
-  <button class="btn" id="replay">Replay</button>
 </section>
 
-<div id="wave"></div>
+<div id="env" role="button" aria-label="Open the letter" tabindex="0">
+  <div class="env-inner">
+    <div class="env-back"></div>
+    <div class="env-flap"></div>
+    <div class="env-front"></div>
+    <div class="env-hint" id="hint">Tap to open</div>
+  </div>
+</div>
 
+<canvas id="scope"></canvas>
+
+<script src="wave.js"></script>
 <script>
   /* =====================================================================
      LYRICS + TIMING
-     STARTS[i]  = second (inside song.mp3) where line i starts being sung.
-     If the typing is a little off, open the page with  ?sync  at the end of the
-     link, tap once at the start of each line while the song plays, and send me
-     the numbers it prints (or paste them into STARTS below).
+     STARTS[i] = second (inside song.mp3) where line i is sung.
+     If a line comes out a bit early/late, open the page with  ?sync  at the end
+     of the link, tap once at the start of each line while the song plays, and send
+     me the numbers it prints (or paste them into STARTS below).
      ===================================================================== */
   const LYRICS = [
     "لو يرجع فينا الزمان",
@@ -154,12 +193,7 @@
     "ليش ما عرفتك من زمان",
     "عطيتك قلبي وكمان"
   ];
-  const STARTS = [5.0, 8.4, 11.8, 15.2, 18.6, 22.0, 25.4, 28.8, 32.2];   // first line starts 5s after play
-  const LAST_LINE_LEN = 3.4;   // seconds the final line takes to sing
-  const GAP = 0.35;            // breath before the next line
-
-  /* peaks of song.mp3 for the waveform */
-  const PEAKS = [58,83,73,76,79,52,52,84,84,87,71,69,84,93,90,100,64,62,72,59,73,82,89,86,65,62,87,91,92,87,79,70,83,90,81,93,94,70,77,97,90,91,90,74,69,91,95,92,77,78,67,84,85,83,88,89,62,71,87,88,90,85,78,78,89,91,90,78,88,80,85,77,86,92,91,69,74,95,91,95,87,78,77,82,62,63,82,81,75,73,88,90,84,56,35,19];
+  const STARTS = [5.0, 8.4, 11.8, 15.2, 18.6, 22.0, 25.4, 28.8, 32.2];   // first line 5s after play
 
   /* ---------- Quiet starfield ---------- */
   (function () {
@@ -187,61 +221,74 @@
     addEventListener('resize', resize); resize(); draw();
   })();
 
-  /* ---------- Build lyric lines + word timings ---------- */
   const audio = document.getElementById('audio');
+  const env = document.getElementById('env');
+  const hint = document.getElementById('hint');
   const box = document.getElementById('lyrics');
+
+  /* ---------- Lines (ready-made text, revealed one sentence at a time) ---------- */
   const lineEls = LYRICS.map(text => {
-    const d = document.createElement('div'); d.className = 'line';
-    text.split(' ').forEach((w, k) => {
-      if (k) d.appendChild(document.createTextNode(' '));
-      const sp = document.createElement('span'); sp.textContent = w; d.appendChild(sp);
-    });
+    const d = document.createElement('div'); d.className = 'line'; d.textContent = text;
     box.appendChild(d); return d;
   });
-  const wordEls = lineEls.map(d => [...d.querySelectorAll('span')]);
-  let lines = [];
+  const sigEl = document.createElement('div');
+  sigEl.className = 'signature'; sigEl.textContent = 'من إبراهيم'; box.appendChild(sigEl);
+  const isShown = LYRICS.map(() => false);
 
-  function buildTimings() {
-    lines = LYRICS.map((text, i) => {
-      const start = STARTS[i];
-      const end = i + 1 < STARTS.length ? STARTS[i + 1] - GAP : start + LAST_LINE_LEN;
-      const words = text.split(' ');
-      const weights = words.map(w => w.length + 1.2);       // longer words take longer to sing
-      const total = weights.reduce((a, b) => a + b, 0);
-      let t = start;
-      const ws = words.map((w, k) => {
-        const d = (end - start) * weights[k] / total;
-        const o = { text: w, s: t, e: t + d }; t += d; return o;
-      });
-      return { start, end, words: ws };
-    });
+  function revealLine(i) {
+    // make the sentence rise out of the envelope into its place
+    const e = env.getBoundingClientRect(), r = lineEls[i].getBoundingClientRect();
+    lineEls[i].style.setProperty('--dy', ((e.top + e.height * .35) - (r.top + r.height / 2)) + 'px');
+    void lineEls[i].offsetWidth;
+    lineEls[i].classList.add('show');
   }
-  buildTimings();
-
   function render(t) {
     let active = -1;
-    lines.forEach((ln, i) => {
-      ln.words.forEach((w, k) => wordEls[i][k].classList.toggle('show', t >= w.s));
-      if (t >= ln.start && (i === lines.length - 1 || t < lines[i + 1].start)) active = i;
+    STARTS.forEach((s, i) => {
+      const should = t >= s;
+      if (should && !isShown[i]) { isShown[i] = true; revealLine(i); }
+      if (!should && isShown[i]) { isShown[i] = false; lineEls[i].classList.remove('show'); }
+      if (should && (i === STARTS.length - 1 || t < STARTS[i + 1])) active = i;
     });
-    lineEls.forEach((el, i) => el.classList.toggle('active', i === active && t < lines[i].end + 0.6));
+    lineEls.forEach((el, i) => el.classList.toggle('active', i === active));
   }
 
-  /* ---------- Waveform ---------- */
-  const wave = document.getElementById('wave');
-  const bars = PEAKS.map(p => { const b = document.createElement('i'); b.style.height = (8 + p * 0.72) + 'px'; wave.appendChild(b); return b; });
-  let lastIdx = -1;
-  function paintWave(t) {
-    const d = audio.duration || 37.2;
-    const idx = Math.min(bars.length - 1, Math.floor(t / d * bars.length));
-    if (idx === lastIdx) return;
-    lastIdx = idx;
-    bars.forEach((b, i) => { b.classList.toggle('played', i < idx); b.classList.toggle('now', i === idx); });
+  /* ---------- Blue sound line: flat in silence, rises with the music ---------- */
+  const cv = document.getElementById('scope'), cx = cv.getContext('2d');
+  const WAVE = (() => {
+    const bin = atob(WAVE_B64), a = new Float32Array(bin.length);
+    for (let i = 0; i < bin.length; i++) a[i] = ((bin.charCodeAt(i) << 24) >> 24) / 127;
+    return a;
+  })();
+  let gain = 0;
+  function sample(sec) {
+    const x = sec * WAVE_RATE, i = Math.floor(x);
+    if (i < 0 || i + 1 >= WAVE.length) return 0;
+    const f = x - i; return WAVE[i] * (1 - f) + WAVE[i + 1] * f;
   }
+  function drawScope() {
+    const dpr = devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight;
+    if (cv.width !== Math.round(W * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+    cx.setTransform(dpr, 0, 0, dpr, 0, 0); cx.clearRect(0, 0, W, H);
+    const playing = !audio.paused && !audio.ended;
+    gain += ((playing ? 1 : 0) - gain) * (playing ? 0.12 : 0.06);
+    const t = audio.currentTime, mid = H / 2 - 4, amp = H * 0.36, N = Math.max(40, Math.floor(W / 3));
+    cx.beginPath();
+    for (let i = 0; i <= N; i++) {
+      const u = i / N, v = sample(t - 0.38 + u * 0.5);
+      const taper = Math.pow(Math.sin(Math.PI * u), 1.1);
+      const y = mid - Math.sign(v) * Math.pow(Math.abs(v), 0.75) * amp * taper * gain;
+      i ? cx.lineTo(u * W, y) : cx.moveTo(0, y);
+    }
+    cx.lineJoin = 'round'; cx.lineWidth = 2.2; cx.strokeStyle = '#4da3ff';
+    cx.shadowColor = 'rgba(77,163,255,.9)'; cx.shadowBlur = 12;
+    cx.stroke();
+    requestAnimationFrame(drawScope);
+  }
+  drawScope();
 
   /* ---------- Playback ---------- */
-  const sigEl = document.getElementById('signature');
-  const replay = document.getElementById('replay');
+  let state = 'closed';        // closed → playing → ended
 
   function fadeIn(to, ms) {
     audio.volume = 0;
@@ -252,41 +299,49 @@
       if (k < 1) requestAnimationFrame(step);
     })(t0);
   }
-
-  function loop() {
-    const t = audio.currentTime;
-    render(t); paintWave(t);
-    if (!audio.paused && !audio.ended) requestAnimationFrame(loop);
+  function tick() {
+    render(audio.currentTime);
+    if (!audio.paused && !audio.ended) requestAnimationFrame(tick);
   }
-
-  audio.addEventListener('play', () => requestAnimationFrame(loop));
-  audio.addEventListener('seeked', () => { const t = audio.currentTime; render(t); paintWave(t); });
+  audio.addEventListener('play', () => requestAnimationFrame(tick));
+  audio.addEventListener('seeked', () => render(audio.currentTime));
   audio.addEventListener('ended', () => {
-    render(1e9); paintWave(1e9);
+    state = 'ended';
+    render(1e9);
     lineEls.forEach(el => el.classList.remove('active'));
-    setTimeout(() => sigEl.classList.add('show'), 600);
-    setTimeout(() => replay.classList.add('show'), 3600);
+    setTimeout(() => sigEl.classList.add('show'), 700);
+    setTimeout(() => { hint.textContent = 'Tap to replay'; env.classList.add('ended'); }, 4200);
   });
 
-  function startSong() {
-    sigEl.classList.remove('show'); replay.classList.remove('show');
-    render(0);
+  function play() {
+    state = 'playing';
+    sigEl.classList.remove('show'); env.classList.remove('ended');
+    isShown.fill(false); lineEls.forEach(el => el.classList.remove('show', 'active'));
     audio.currentTime = 0;
-    audio.play().then(() => fadeIn(0.9, 1200)).catch(() => {});
+    audio.play().then(() => fadeIn(0.9, 1500)).catch(() => {});
   }
+
+  function useEnvelope() {
+    if (state === 'closed') {
+      env.classList.add('open');
+      play();                                              // song starts as the letter opens
+      setTimeout(() => env.classList.add('docked'), 900);  // envelope settles at the bottom
+    } else if (state === 'ended') {
+      hint.textContent = '';
+      play();
+    }
+  }
+  env.addEventListener('click', useEnvelope);
+  env.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); useEnvelope(); } });
 
   document.getElementById('open').addEventListener('click', () => {
     document.getElementById('intro').style.opacity = 0;
     setTimeout(() => {
       document.getElementById('intro').classList.add('hidden');
       document.getElementById('stage').classList.remove('hidden');
-      wave.classList.add('on');
-      startSong();
+      cv.classList.add('on'); env.classList.add('ready');
     }, 1200);
-    // start the audio inside the click so mobile browsers allow it
-    audio.volume = 0; audio.play().then(() => audio.pause()).catch(() => {});
   });
-  replay.addEventListener('click', startSong);
 
   /* ---------- ?sync helper: tap once at the start of every line ---------- */
   if (location.search.includes('sync')) {
@@ -294,7 +349,7 @@
     let taps = [];
     const show = () => {
       bar.innerHTML = taps.length < LYRICS.length
-        ? `SYNC MODE – press Open, then tap (or SPACE) exactly when line <b>${taps.length + 1}</b> starts: <b dir="rtl">${LYRICS[taps.length]}</b>`
+        ? `SYNC MODE – press Open, tap the envelope, then tap anywhere (or SPACE) exactly when line <b>${taps.length + 1}</b> starts: <b dir="rtl">${LYRICS[taps.length]}</b>`
         : `Done. Copy this and send it back:<textarea readonly>const STARTS = [${taps.join(', ')}];</textarea>`;
     };
     show();
@@ -303,7 +358,7 @@
       taps.push(+audio.currentTime.toFixed(2)); show();
     };
     addEventListener('keydown', e => { if (e.code === 'Space') { e.preventDefault(); tap(); } });
-    document.addEventListener('pointerdown', e => { if (e.target.id !== 'open' && e.target.tagName !== 'TEXTAREA') tap(); });
+    document.addEventListener('pointerdown', e => { if (e.target.closest('#env') || e.target.id === 'open' || e.target.tagName === 'TEXTAREA') return; tap(); });
   }
 </script>
 </body>
