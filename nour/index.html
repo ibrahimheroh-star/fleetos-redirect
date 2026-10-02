@@ -71,6 +71,11 @@
     text-shadow: 0 1px 6px rgba(0, 0, 0, .85), 0 0 22px rgba(0, 0, 0, .7);
   }
 
+  /* ---------- Hearts (only at "عطيتك قلبي وكمان", about 2 seconds) ---------- */
+  #hearts { position: fixed; inset: 0; z-index: 6; pointer-events: none; overflow: hidden; }
+  .heart { position: absolute; color: #ff5d7d; opacity: 0; filter: drop-shadow(0 0 8px rgba(255, 93, 125, .6)); }
+  .heart svg { display: block; width: 100%; height: 100%; }
+
   /* ---------- Signature (under the letter) ---------- */
   #sig {
     position: fixed; left: 0; right: 0; z-index: 4; text-align: center;
@@ -159,6 +164,7 @@
 </section>
 
 <div id="lyrics"></div>
+<div id="hearts"></div>
 <div id="sig">من إبراهيم</div>
 
 <div id="env" role="button" aria-label="Open the letter" tabindex="0">
@@ -248,8 +254,31 @@
       [{ transform: 'translateY(0)' }, { transform: `translateY(${-dist}px)` }],
       { duration: dist / SPEED * 1000, easing: 'linear', fill: 'forwards' }));
   }
+  /* ---------- Hearts: rise from the bottom and leave through the top, ~2 s in total ---------- */
+  const heartBox = document.getElementById('hearts');
+  const HEART_AT = STARTS[STARTS.length - 1];          // "عطيتك قلبي وكمان"
+  const HEART_SVG = '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.6 4.5 6.3 4.5c2 0 3.7 1.1 5.7 3.2 2-2.1 3.7-3.2 5.7-3.2 3.7 0 5.4 3.9 3.9 7.3C19.5 16.4 12 21 12 21z"/></svg>';
+  let heartsDone = false;
+  function hearts() {
+    const H = innerHeight, W = innerWidth;
+    for (let i = 0; i < 16; i++) {
+      const el = document.createElement('div'); el.className = 'heart'; el.innerHTML = HEART_SVG;
+      const size = 14 + Math.random() * 22, sway = (Math.random() - .5) * 60;
+      el.style.cssText = `left:${Math.random() * (W - size)}px;top:${H + 10}px;width:${size}px;height:${size}px`;
+      heartBox.appendChild(el);
+      el.animate([
+        { transform: 'translate(0,0)', opacity: 0 },
+        { transform: `translate(${sway / 2}px,${-H * .12}px)`, opacity: 1, offset: .1 },
+        { transform: `translate(${-sway / 2}px,${-H * .6}px)`, opacity: 1, offset: .6 },
+        { transform: `translate(${sway}px,${-(H + size + 30)}px)`, opacity: 1 }
+      ], { duration: 1500, delay: Math.random() * 500, easing: 'linear', fill: 'both' })   // 0.5s stagger + 1.5s rise = 2s
+        .onfinish = () => el.remove();
+    }
+  }
+
   function render(t) {
     STARTS.forEach((s, i) => { if (!launched[i] && t >= s - LEAD) { launched[i] = true; launch(i); } });
+    if (!heartsDone && t >= HEART_AT) { heartsDone = true; hearts(); }
   }
 
   /* ---------- Blue sound line: flat in silence, rises with the music ---------- */
@@ -308,6 +337,7 @@
   function play() {
     state = 'playing';
     flights.forEach(a => a.cancel()); flights.length = 0; launched.fill(false);
+    heartsDone = false; heartBox.innerHTML = '';
     audio.currentTime = 0;
     audio.play().then(() => fadeIn(0.9, 1500)).catch(() => {});
   }
