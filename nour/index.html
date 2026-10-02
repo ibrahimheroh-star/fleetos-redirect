@@ -63,10 +63,8 @@
     opacity: .45; transition: opacity 1.2s ease;
   }
   .line.active { opacity: 1; }
-  .line.active::after {
-    content: ""; display: inline-block; width: 1px; height: 1em; margin-right: 4px;
-    background: var(--gold); vertical-align: middle; animation: blink 1s steps(1) infinite;
-  }
+  .line span { display: inline-block; opacity: 0; transform: translateY(8px); transition: opacity .7s ease, transform .7s ease; }
+  .line span.show { opacity: 1; transform: none; }
 
   /* ---------- Signature ---------- */
   .signature {
@@ -192,7 +190,15 @@
   /* ---------- Build lyric lines + word timings ---------- */
   const audio = document.getElementById('audio');
   const box = document.getElementById('lyrics');
-  const lineEls = LYRICS.map(() => { const d = document.createElement('div'); d.className = 'line'; box.appendChild(d); return d; });
+  const lineEls = LYRICS.map(text => {
+    const d = document.createElement('div'); d.className = 'line';
+    text.split(' ').forEach((w, k) => {
+      if (k) d.appendChild(document.createTextNode(' '));
+      const sp = document.createElement('span'); sp.textContent = w; d.appendChild(sp);
+    });
+    box.appendChild(d); return d;
+  });
+  const wordEls = lineEls.map(d => [...d.querySelectorAll('span')]);
   let lines = [];
 
   function buildTimings() {
@@ -212,18 +218,10 @@
   }
   buildTimings();
 
-  const shown = LYRICS.map(() => '');
   function render(t) {
     let active = -1;
     lines.forEach((ln, i) => {
-      let out = [];
-      for (const w of ln.words) {
-        if (t >= w.e) out.push(w.text);
-        else if (t > w.s) { out.push(w.text.slice(0, Math.max(1, Math.ceil((t - w.s) / (w.e - w.s) * w.text.length)))); break; }
-        else break;
-      }
-      const s = out.join(' ');
-      if (s !== shown[i]) { shown[i] = s; lineEls[i].textContent = s; }
+      ln.words.forEach((w, k) => wordEls[i][k].classList.toggle('show', t >= w.s));
       if (t >= ln.start && (i === lines.length - 1 || t < lines[i + 1].start)) active = i;
     });
     lineEls.forEach((el, i) => el.classList.toggle('active', i === active && t < lines[i].end + 0.6));
@@ -272,7 +270,7 @@
 
   function startSong() {
     sigEl.classList.remove('show'); replay.classList.remove('show');
-    lineEls.forEach((el, i) => { el.textContent = ''; shown[i] = ''; el.classList.remove('active'); });
+    render(0);
     audio.currentTime = 0;
     audio.play().then(() => fadeIn(0.9, 1200)).catch(() => {});
   }
