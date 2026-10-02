@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>For Nour</title>
+<title>For Noor</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #0b0d14;
@@ -29,7 +29,7 @@
     position: relative; z-index: 1;
     min-height: 100vh; min-height: 100dvh;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: 48px 24px; text-align: center;
+    padding: 40px 24px; text-align: center;
     transition: opacity 1.4s ease;
   }
   .hidden { opacity: 0; pointer-events: none; position: absolute; inset: 0; visibility: hidden; }
@@ -54,94 +54,115 @@
   }
   .btn:hover { background: var(--gold); color: var(--bg); border-color: var(--gold); }
 
-  /* ---------- Letter ---------- */
-  #letter { justify-content: flex-start; padding-top: 14vh; padding-bottom: 20vh; }
-  .paper { max-width: 560px; width: 100%; }
-  .paper .to {
-    font-family: "Amiri", serif; font-size: clamp(30px, 7vw, 38px); color: var(--gold);
-    direction: rtl; margin-bottom: 36px;
+  /* ---------- Lyrics ---------- */
+  #stage { padding-bottom: 150px; }
+  #lyrics { width: 100%; max-width: 560px; direction: rtl; }
+  .line {
+    font-family: "Amiri", serif; font-size: clamp(21px, 5.6vw, 27px); line-height: 1.95;
+    min-height: 1.95em; color: var(--ink);
+    opacity: .45; transition: opacity 1.2s ease;
   }
-  .paper p {
-    font-family: "Amiri", serif; font-size: clamp(20px, 5vw, 24px); line-height: 2.15;
-    direction: rtl; text-align: center; margin-bottom: 30px;
-    opacity: 0; transform: translateY(14px);
-    transition: opacity 2s ease, transform 2s ease;
+  .line.active { opacity: 1; }
+  .line.active::after {
+    content: ""; display: inline-block; width: 1px; height: 1em; margin-right: 4px;
+    background: var(--gold); vertical-align: middle; animation: blink 1s steps(1) infinite;
   }
-  .paper p.show { opacity: 1; transform: none; }
-  .paper .sign {
-    font-family: "Amiri", serif; font-size: 26px; color: var(--gold); margin-top: 50px;
-    direction: rtl; opacity: 0; transition: opacity 2.5s ease;
-  }
-  .paper .sign.show { opacity: 1; }
-  .rule {
-    width: 0; height: 1px; background: rgba(217, 184, 119, .45); margin: 44px auto 0;
-    transition: width 2.2s ease;
-  }
-  .rule.show { width: 90px; }
 
-  /* ---------- Ending ---------- */
-  .end {
-    margin-top: 50px; font-size: 17px; letter-spacing: .4em; text-transform: uppercase;
-    color: var(--muted); opacity: 0; transition: opacity 2.5s ease;
+  /* ---------- Signature ---------- */
+  .signature {
+    font-family: "Aref Ruqaa", "Amiri", serif; font-weight: 700;
+    font-size: clamp(38px, 11vw, 58px); color: var(--gold);
+    direction: rtl; transform: rotate(-5deg); margin-top: 26px;
+    text-shadow: 0 0 24px rgba(217, 184, 119, .3);
+    clip-path: inset(0 0 0 100%); transition: clip-path 2.6s ease-out;
   }
-  .end.show { opacity: 1; }
+  .signature.show { clip-path: inset(0 0 0 0); }
+  #replay {
+    margin-top: 26px; font-size: 13px; padding: 10px 24px; animation: none;
+    opacity: 0; pointer-events: none; transition: opacity 1.5s ease, background .5s, color .5s;
+  }
+  #replay.show { opacity: 1; pointer-events: auto; }
 
-  /* ---------- Music toggle ---------- */
-  #music {
-    position: fixed; right: 18px; bottom: 18px; z-index: 5;
-    font-family: inherit; font-size: 12px; letter-spacing: .25em; text-transform: uppercase;
-    color: var(--muted); background: rgba(11, 13, 20, .6);
-    border: 1px solid rgba(255, 255, 255, .12); padding: 9px 14px; cursor: pointer;
-    opacity: 0; pointer-events: none; transition: opacity 1.5s ease, color .3s;
+  /* ---------- Waveform ---------- */
+  #wave {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 3; height: 110px;
+    padding: 0 20px 26px; display: flex; align-items: flex-end; justify-content: center; gap: 3px;
+    background: linear-gradient(to top, rgba(11, 13, 20, .95), rgba(11, 13, 20, 0));
+    opacity: 0; transition: opacity 2s ease; pointer-events: none;
   }
-  #music.on { opacity: 1; pointer-events: auto; }
-  #music:hover { color: var(--ink); }
+  #wave.on { opacity: 1; }
+  #wave i {
+    display: block; flex: 1 1 0; max-width: 6px; min-width: 2px; border-radius: 2px;
+    background: rgba(236, 231, 221, .22); transition: background .3s, transform .15s;
+    transform-origin: bottom;
+  }
+  #wave i.played { background: var(--gold); }
+  #wave i.now { background: #fff; transform: scaleY(1.12); }
+
+  /* ---------- Sync helper (?sync) ---------- */
+  #sync {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 9; padding: 10px 14px;
+    background: #000c; color: #fff; font: 14px/1.5 system-ui, sans-serif; text-align: left; direction: ltr;
+  }
+  #sync textarea { width: 100%; height: 70px; margin-top: 6px; font: 12px monospace; }
 
   @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  @keyframes blink { 50% { opacity: 0; } }
   @keyframes glow {
     0%, 100% { text-shadow: 0 0 40px rgba(217, 184, 119, .25); }
     50%      { text-shadow: 0 0 70px rgba(217, 184, 119, .6); }
   }
   @media (prefers-reduced-motion: reduce) {
-    * { animation-duration: .01s !important; transition-duration: .01s !important; }
+    .signature { transition-duration: .01s; }
   }
 </style>
 </head>
 <body>
 <canvas id="stars"></canvas>
 
-<!-- Put your song next to this file and name it song.mp3 -->
-<audio id="audio" src="song.mp3" loop preload="auto"></audio>
+<!-- The song part (1:40 → 2:15) cut from the full track -->
+<audio id="audio" src="song.mp3" preload="auto" playsinline></audio>
 
 <section id="intro" class="screen">
   <div class="eyebrow">Something for you</div>
-  <h1 class="name">Nour</h1>
+  <h1 class="name">Noor</h1>
   <button class="btn" id="open">Open</button>
 </section>
 
-<section id="letter" class="screen hidden">
-  <div class="paper">
-    <!--
-      ✏️ Edit your letter here. Every <p> fades in one after another.
-      Keep the letter in Arabic; everything else on the page stays in English.
-    -->
-    <div class="to">إلى نور،</div>
-
-    <p>اسمك نور، ومن يوم ما عرفتك صار كل شي حولي أوضح.</p>
-    <p>ما بعرف كيف أشرح الإحساس، بس وجودك بيخلي الأيام العادية أحلى، وبيخلّيني أضحك من قلبي أكثر.</p>
-    <p>بحب بساطتك، وضحكتك، وطريقتك بالكلام، وكيف بتخلّي الكل حواليكي مرتاح.</p>
-    <p>كتبتلك هالكلمات لأنو في أشياء بتنقال أحسن لما تنكتب، وبدي تعرفي إنك مهمة عندي كثير.</p>
-    <p>شكراً إنك بحياتي.</p>
-
-    <div class="sign">— من قلبي</div>
-    <div class="rule" id="rule"></div>
-    <div class="end" id="end">Nour</div>
-  </div>
+<section id="stage" class="screen hidden">
+  <div id="lyrics"></div>
+  <div class="signature" id="signature">من إبراهيم</div>
+  <button class="btn" id="replay">Replay</button>
 </section>
 
-<button id="music">Music: on</button>
+<div id="wave"></div>
 
 <script>
+  /* =====================================================================
+     LYRICS + TIMING
+     STARTS[i]  = second (inside song.mp3) where line i starts being sung.
+     If the typing is a little off, open the page with  ?sync  at the end of the
+     link, tap once at the start of each line while the song plays, and send me
+     the numbers it prints (or paste them into STARTS below).
+     ===================================================================== */
+  const LYRICS = [
+    "لو يرجع فينا الزمان",
+    "ما بخلي ولا مكان",
+    "بقلب عليكي كل عمان",
+    "بسأل عنك كل إنسان",
+    "نسينا وصار اللي صار",
+    "لقيتك وكان اللي كان",
+    "وإنتي اليوم بين إيدي",
+    "ليش ما عرفتك من زمان",
+    "عطيتك قلبي وكمان"
+  ];
+  const STARTS = [0.25, 4.20, 8.15, 12.10, 16.05, 20.00, 23.95, 27.90, 31.85];
+  const LAST_LINE_LEN = 3.4;   // seconds the final line takes to sing
+  const GAP = 0.35;            // breath before the next line
+
+  /* peaks of song.mp3 for the waveform */
+  const PEAKS = [58,83,73,76,79,52,52,84,84,87,71,69,84,93,90,100,64,62,72,59,73,82,89,86,65,62,87,91,92,87,79,70,83,90,81,93,94,70,77,97,90,91,90,74,69,91,95,92,77,78,67,84,85,83,88,89,62,71,87,88,90,85,78,78,89,91,90,78,88,80,85,77,86,92,91,69,74,95,91,95,87,78,77,82,62,63,82,81,75,73,88,90,84,56,35,19];
+
   /* ---------- Quiet starfield ---------- */
   (function () {
     const c = document.getElementById('stars'), ctx = c.getContext('2d');
@@ -168,57 +189,124 @@
     addEventListener('resize', resize); resize(); draw();
   })();
 
-  /* ---------- Open → letter + music ---------- */
+  /* ---------- Build lyric lines + word timings ---------- */
   const audio = document.getElementById('audio');
-  const music = document.getElementById('music');
-  const intro = document.getElementById('intro');
-  const letter = document.getElementById('letter');
+  const box = document.getElementById('lyrics');
+  const lineEls = LYRICS.map(() => { const d = document.createElement('div'); d.className = 'line'; box.appendChild(d); return d; });
+  let lines = [];
 
-  function fadeIn(el, to, ms) {
-    el.volume = 0;
+  function buildTimings() {
+    lines = LYRICS.map((text, i) => {
+      const start = STARTS[i];
+      const end = i + 1 < STARTS.length ? STARTS[i + 1] - GAP : start + LAST_LINE_LEN;
+      const words = text.split(' ');
+      const weights = words.map(w => w.length + 1.2);       // longer words take longer to sing
+      const total = weights.reduce((a, b) => a + b, 0);
+      let t = start;
+      const ws = words.map((w, k) => {
+        const d = (end - start) * weights[k] / total;
+        const o = { text: w, s: t, e: t + d }; t += d; return o;
+      });
+      return { start, end, words: ws };
+    });
+  }
+  buildTimings();
+
+  const shown = LYRICS.map(() => '');
+  function render(t) {
+    let active = -1;
+    lines.forEach((ln, i) => {
+      let out = [];
+      for (const w of ln.words) {
+        if (t >= w.e) out.push(w.text);
+        else if (t > w.s) { out.push(w.text.slice(0, Math.max(1, Math.ceil((t - w.s) / (w.e - w.s) * w.text.length)))); break; }
+        else break;
+      }
+      const s = out.join(' ');
+      if (s !== shown[i]) { shown[i] = s; lineEls[i].textContent = s; }
+      if (t >= ln.start && (i === lines.length - 1 || t < lines[i + 1].start)) active = i;
+    });
+    lineEls.forEach((el, i) => el.classList.toggle('active', i === active && t < lines[i].end + 0.6));
+  }
+
+  /* ---------- Waveform ---------- */
+  const wave = document.getElementById('wave');
+  const bars = PEAKS.map(p => { const b = document.createElement('i'); b.style.height = (8 + p * 0.72) + 'px'; wave.appendChild(b); return b; });
+  let lastIdx = -1;
+  function paintWave(t) {
+    const d = audio.duration || 37.2;
+    const idx = Math.min(bars.length - 1, Math.floor(t / d * bars.length));
+    if (idx === lastIdx) return;
+    lastIdx = idx;
+    bars.forEach((b, i) => { b.classList.toggle('played', i < idx); b.classList.toggle('now', i === idx); });
+  }
+
+  /* ---------- Playback ---------- */
+  const sigEl = document.getElementById('signature');
+  const replay = document.getElementById('replay');
+
+  function fadeIn(to, ms) {
+    audio.volume = 0;
     const t0 = performance.now();
     (function step(t) {
       const k = Math.min((t - t0) / ms, 1);
-      el.volume = to * k;
+      audio.volume = to * k;
       if (k < 1) requestAnimationFrame(step);
     })(t0);
   }
 
-  document.getElementById('open').addEventListener('click', () => {
-    audio.play().then(() => { fadeIn(audio, 0.85, 4000); music.classList.add('on'); }).catch(() => {});
-    intro.style.opacity = 0;
-    setTimeout(() => {
-      intro.classList.add('hidden');
-      letter.classList.remove('hidden');
-      window.scrollTo(0, 0);
-      reveal();
-    }, 1400);
-  });
-
-  /* reveal paragraphs one by one, keep the newest one in view */
-  function reveal() {
-    const items = [...document.querySelectorAll('.paper p')];
-    let i = 0;
-    function next() {
-      if (i >= items.length) {
-        document.querySelector('.sign').classList.add('show');
-        setTimeout(() => document.getElementById('rule').classList.add('show'), 2200);
-        setTimeout(() => document.getElementById('end').classList.add('show'), 4000);
-        return;
-      }
-      const p = items[i++];
-      p.classList.add('show');
-      p.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      // pause scales with the length of the paragraph so it's readable
-      setTimeout(next, 2200 + p.textContent.length * 55);
-    }
-    setTimeout(next, 800);
+  function loop() {
+    const t = audio.currentTime;
+    render(t); paintWave(t);
+    if (!audio.paused && !audio.ended) requestAnimationFrame(loop);
   }
 
-  music.addEventListener('click', () => {
-    if (audio.paused) { audio.play(); music.textContent = 'Music: on'; }
-    else { audio.pause(); music.textContent = 'Music: off'; }
+  audio.addEventListener('play', () => requestAnimationFrame(loop));
+  audio.addEventListener('seeked', () => { const t = audio.currentTime; render(t); paintWave(t); });
+  audio.addEventListener('ended', () => {
+    render(1e9); paintWave(1e9);
+    lineEls.forEach(el => el.classList.remove('active'));
+    setTimeout(() => sigEl.classList.add('show'), 600);
+    setTimeout(() => replay.classList.add('show'), 3600);
   });
+
+  function startSong() {
+    sigEl.classList.remove('show'); replay.classList.remove('show');
+    lineEls.forEach((el, i) => { el.textContent = ''; shown[i] = ''; el.classList.remove('active'); });
+    audio.currentTime = 0;
+    audio.play().then(() => fadeIn(0.9, 1200)).catch(() => {});
+  }
+
+  document.getElementById('open').addEventListener('click', () => {
+    document.getElementById('intro').style.opacity = 0;
+    setTimeout(() => {
+      document.getElementById('intro').classList.add('hidden');
+      document.getElementById('stage').classList.remove('hidden');
+      wave.classList.add('on');
+      startSong();
+    }, 1200);
+    // start the audio inside the click so mobile browsers allow it
+    audio.volume = 0; audio.play().then(() => audio.pause()).catch(() => {});
+  });
+  replay.addEventListener('click', startSong);
+
+  /* ---------- ?sync helper: tap once at the start of every line ---------- */
+  if (location.search.includes('sync')) {
+    const bar = document.createElement('div'); bar.id = 'sync'; document.body.appendChild(bar);
+    let taps = [];
+    const show = () => {
+      bar.innerHTML = taps.length < LYRICS.length
+        ? `SYNC MODE – press Open, then tap (or SPACE) exactly when line <b>${taps.length + 1}</b> starts: <b dir="rtl">${LYRICS[taps.length]}</b>`
+        : `Done. Copy this and send it back:<textarea readonly>const STARTS = [${taps.join(', ')}];</textarea>`;
+    };
+    show();
+    const tap = () => {
+      if (audio.paused || taps.length >= LYRICS.length) return;
+      taps.push(+audio.currentTime.toFixed(2)); show();
+    };
+    addEventListener('keydown', e => { if (e.code === 'Space') { e.preventDefault(); tap(); } });
+    document.addEventListener('pointerdown', e => { if (e.target.id !== 'open' && e.target.tagName !== 'TEXTAREA') tap(); });
+  }
 </script>
 </body>
 </html>
