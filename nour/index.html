@@ -60,26 +60,28 @@
   }
   .btn:hover { background: var(--gold); color: var(--bg); border-color: var(--gold); }
 
-  /* ---------- Stage ---------- */
-  #stage { justify-content: flex-start; padding: 5vh 20px 0; }
-  #lyrics { width: 100%; max-width: 560px; direction: rtl; }
-  .line {
-    font-family: "Amiri", serif; font-size: clamp(18px, 3.3vh, 25px); line-height: 1.85;
-    color: var(--ink); opacity: 0;
-    transform: translateY(var(--dy, 0px)) scale(.4);
-    transition: transform 1.3s cubic-bezier(.2, .8, .25, 1), opacity 1s ease;
+  /* ---------- Floating sentences ---------- */
+  #lyrics {
+    position: fixed; inset: 0; z-index: 5; pointer-events: none; overflow: hidden; direction: rtl;
+    clip-path: inset(0 0 100% 0);          /* JS opens it only above the letter's top edge */
   }
-  .line.show   { opacity: .5; transform: none; }
-  .line.active { opacity: 1; }
+  .line {
+    position: absolute; left: 0; right: 0; top: 100%; padding: 0 24px; text-align: center;
+    font-family: "Amiri", serif; font-size: clamp(22px, 6vw, 30px); line-height: 1.9; color: var(--ink);
+    text-shadow: 0 1px 6px rgba(0, 0, 0, .85), 0 0 22px rgba(0, 0, 0, .7);
+  }
 
-  .signature {
+  /* ---------- Signature (under the letter) ---------- */
+  #sig {
+    position: fixed; left: 0; right: 0; z-index: 4; text-align: center;
+    top: calc(50% + var(--eh) * .59 + 40px);
     font-family: "Aref Ruqaa", "Amiri", serif; font-weight: 700;
-    font-size: clamp(36px, 10vw, 54px); color: var(--gold);
-    direction: rtl; transform: rotate(-5deg); margin-top: 14px;
+    font-size: clamp(36px, 10vw, 52px); color: var(--gold); direction: rtl;
     text-shadow: 0 0 24px rgba(224, 190, 124, .3);
+    transform: rotate(-4deg);
     clip-path: inset(0 0 0 100%); transition: clip-path 2.6s ease-out;
   }
-  .signature.show { clip-path: inset(0 0 0 0); }
+  #sig.show { clip-path: inset(0 0 0 0); }
 
   /* ---------- Envelope ---------- */
   #env {
@@ -88,13 +90,12 @@
     bottom: calc(50% - var(--eh) / 2);
     perspective: 900px; cursor: pointer; -webkit-tap-highlight-color: transparent;
     opacity: 0; pointer-events: none;
-    transform-origin: bottom center;
-    transition: bottom 1.5s cubic-bezier(.6, 0, .2, 1), transform 1.5s cubic-bezier(.6, 0, .2, 1), opacity 1.6s ease;
+    transition: transform 1s cubic-bezier(.3, .7, .2, 1), opacity 1.6s ease;
   }
   #env.ready { opacity: 1; pointer-events: auto; }
-  #env.docked { bottom: 100px; transform: scale(.72); }
+  #env.open { transform: scale(1.18); }
   .env-inner { position: relative; width: 100%; height: 100%; animation: float 4s ease-in-out infinite; }
-  #env.docked .env-inner, #env.open .env-inner { animation: none; }
+  #env.open .env-inner { animation: none; }
   .env-back {
     position: absolute; inset: 0; background: #e7e3d9; border-radius: 6px;
     box-shadow: 0 24px 60px rgba(0, 0, 0, .55), 0 0 70px rgba(255, 255, 255, .10);
@@ -112,14 +113,13 @@
     background: linear-gradient(#ffffff 30%, #e9e5db); clip-path: polygon(0 0, 100% 0, 50% 100%);
     transform-origin: top center; transition: transform .9s cubic-bezier(.5, 0, .2, 1), z-index 0s;
   }
-  #env.open .env-flap { transform: rotateX(180deg); z-index: 1; transition: transform .9s cubic-bezier(.5, 0, .2, 1), z-index 0s .45s; filter: brightness(.93); }
+  #env.open .env-flap { transform: rotateX(180deg); z-index: 1; transition: transform .9s cubic-bezier(.5, 0, .2, 1), z-index 0s .45s; filter: brightness(.6); }
   .env-hint {
     position: absolute; top: calc(100% + 26px); left: 0; right: 0; text-align: center;
     font-weight: 600; font-size: 15px; letter-spacing: .4em; text-transform: uppercase; color: var(--muted);
     animation: pulse 2.4s ease-in-out infinite; transition: opacity .8s ease;
   }
   #env.open .env-hint { opacity: 0; animation: none; }
-  #env.docked.ended .env-hint { opacity: 1; animation: pulse 2.4s ease-in-out infinite; font-size: 20px; top: calc(100% + 16px); }
 
   /* ---------- Sound line (blue) ---------- */
   #scope {
@@ -142,7 +142,7 @@
     0%, 100% { text-shadow: 0 0 40px rgba(224, 190, 124, .25); }
     50%      { text-shadow: 0 0 70px rgba(224, 190, 124, .6); }
   }
-  @media (max-height: 720px) { :root { --ew: 190px; } #env.docked { bottom: 92px; } .line { font-size: clamp(17px, 3vh, 25px); } }
+  @media (max-height: 720px) { :root { --ew: 200px; } }
   @media (prefers-reduced-motion: reduce) { .signature { transition-duration: .01s; } }
 </style>
 </head>
@@ -158,9 +158,8 @@
   <button class="btn" id="open">Open</button>
 </section>
 
-<section id="stage" class="screen hidden">
-  <div id="lyrics"></div>
-</section>
+<div id="lyrics"></div>
+<div id="sig">من إبراهيم</div>
 
 <div id="env" role="button" aria-label="Open the letter" tabindex="0">
   <div class="env-inner">
@@ -196,7 +195,6 @@
   // seconds inside song.mp3 (clip = 1:40 → 2:15 of the original). Real times from the song:
   // 1:46, 1:48, 1:50, 1:53, 1:56, 1:58, 2:01, (2:03 instrumental gap), 2:06, 2:08
   const STARTS = [6, 8, 10, 13, 16, 18, 21, 26, 28];
-  const ENDS   = [7.8, 9.8, 12.8, 15.8, 17.8, 20.8, 22.8, 27.8, 35];   // when a line stops being "active"
 
   /* ---------- Quiet starfield ---------- */
   (function () {
@@ -227,33 +225,31 @@
   const audio = document.getElementById('audio');
   const env = document.getElementById('env');
   const hint = document.getElementById('hint');
-  const box = document.getElementById('lyrics');
 
-  /* ---------- Lines (ready-made text, revealed one sentence at a time) ---------- */
+  /* ---------- Sentences: ready-made text that floats out of the letter and up off the screen ---------- */
+  const lyricsBox = document.getElementById('lyrics');
+  const sigEl = document.getElementById('sig');
   const lineEls = LYRICS.map(text => {
     const d = document.createElement('div'); d.className = 'line'; d.textContent = text;
-    box.appendChild(d); return d;
+    lyricsBox.appendChild(d); return d;
   });
-  const sigEl = document.createElement('div');
-  sigEl.className = 'signature'; sigEl.textContent = 'من إبراهيم'; box.appendChild(sigEl);
-  const isShown = LYRICS.map(() => false);
+  const launched = LYRICS.map(() => false);
+  const flights = [];
+  const SPEED = 52;     // px per second that a sentence climbs
+  const LEAD = 0.45;    // s: a sentence starts leaving the letter just before it is sung
 
-  function revealLine(i) {
-    // make the sentence rise out of the envelope into its place
-    const e = env.getBoundingClientRect(), r = lineEls[i].getBoundingClientRect();
-    lineEls[i].style.setProperty('--dy', ((e.top + e.height * .35) - (r.top + r.height / 2)) + 'px');
-    void lineEls[i].offsetWidth;
-    lineEls[i].classList.add('show');
+  function launch(i) {
+    const el = lineEls[i], e = env.getBoundingClientRect();
+    // text is only visible above the letter's top edge, so it looks like it comes out of the letter
+    lyricsBox.style.clipPath = `inset(0 0 ${Math.max(0, innerHeight - e.top)}px 0)`;
+    el.style.top = e.top + 'px';
+    const dist = e.top + el.offsetHeight + 30;
+    flights.push(el.animate(
+      [{ transform: 'translateY(0)' }, { transform: `translateY(${-dist}px)` }],
+      { duration: dist / SPEED * 1000, easing: 'linear', fill: 'forwards' }));
   }
   function render(t) {
-    let active = -1;
-    STARTS.forEach((s, i) => {
-      const should = t >= s;
-      if (should && !isShown[i]) { isShown[i] = true; revealLine(i); }
-      if (!should && isShown[i]) { isShown[i] = false; lineEls[i].classList.remove('show'); }
-      if (should && t < ENDS[i]) active = i;
-    });
-    lineEls.forEach((el, i) => el.classList.toggle('active', i === active));
+    STARTS.forEach((s, i) => { if (!launched[i] && t >= s - LEAD) { launched[i] = true; launch(i); } });
   }
 
   /* ---------- Blue sound line: flat in silence, rises with the music ---------- */
@@ -307,30 +303,21 @@
     if (!audio.paused && !audio.ended) requestAnimationFrame(tick);
   }
   audio.addEventListener('play', () => requestAnimationFrame(tick));
-  audio.addEventListener('seeked', () => render(audio.currentTime));
-  audio.addEventListener('ended', () => {
-    state = 'ended';
-    render(1e9);
-    lineEls.forEach(el => el.classList.remove('active'));
-    setTimeout(() => sigEl.classList.add('show'), 700);
-    setTimeout(() => { hint.textContent = 'Tap to replay'; env.classList.add('ended'); }, 4200);
-  });
+  audio.addEventListener('ended', () => { state = 'ended'; });
 
   function play() {
     state = 'playing';
-    sigEl.classList.remove('show'); env.classList.remove('ended');
-    isShown.fill(false); lineEls.forEach(el => el.classList.remove('show', 'active'));
+    flights.forEach(a => a.cancel()); flights.length = 0; launched.fill(false);
     audio.currentTime = 0;
     audio.play().then(() => fadeIn(0.9, 1500)).catch(() => {});
   }
 
   function useEnvelope() {
     if (state === 'closed') {
-      env.classList.add('open');
-      play();                                              // song starts as the letter opens
-      setTimeout(() => env.classList.add('docked'), 900);  // envelope settles at the bottom
+      env.classList.add('open');                     // flap opens, letter grows a little and stays centred
+      play();                                        // song starts as the letter opens
+      setTimeout(() => sigEl.classList.add('show'), 1200);
     } else if (state === 'ended') {
-      hint.textContent = '';
       play();
     }
   }
@@ -341,7 +328,6 @@
     document.getElementById('intro').style.opacity = 0;
     setTimeout(() => {
       document.getElementById('intro').classList.add('hidden');
-      document.getElementById('stage').classList.remove('hidden');
       cv.classList.add('on'); env.classList.add('ready');
     }, 1200);
   });
