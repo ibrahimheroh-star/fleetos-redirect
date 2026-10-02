@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>For Nour</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0d14;
+    --ink: #ece7dd;
+    --muted: #8d8a85;
+    --gold: #d9b877;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: radial-gradient(ellipse at 50% 30%, #161a29 0%, var(--bg) 70%);
+    color: var(--ink);
+    font-family: "Cormorant Garamond", Georgia, serif;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  canvas#stars { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; }
+
+  .screen {
+    position: relative; z-index: 1;
+    min-height: 100vh; min-height: 100dvh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 48px 24px; text-align: center;
+    transition: opacity 1.4s ease;
+  }
+  .hidden { opacity: 0; pointer-events: none; position: absolute; inset: 0; visibility: hidden; }
+
+  /* ---------- Intro ---------- */
+  .eyebrow {
+    font-size: 15px; letter-spacing: .45em; text-transform: uppercase; color: var(--muted);
+    opacity: 0; animation: rise 2s ease .4s forwards;
+  }
+  .name {
+    font-weight: 300; font-size: clamp(64px, 18vw, 140px); letter-spacing: .08em;
+    margin: 18px 0 34px; color: var(--ink);
+    text-shadow: 0 0 40px rgba(217, 184, 119, .35);
+    opacity: 0; animation: rise 2.4s ease 1.2s forwards, glow 6s ease-in-out 3.6s infinite;
+  }
+  .btn {
+    font-family: inherit; font-size: 15px; letter-spacing: .35em; text-transform: uppercase;
+    color: var(--gold); background: transparent;
+    border: 1px solid rgba(217, 184, 119, .5); padding: 14px 34px; cursor: pointer;
+    opacity: 0; animation: rise 2s ease 2.6s forwards;
+    transition: background .5s, color .5s, border-color .5s;
+  }
+  .btn:hover { background: var(--gold); color: var(--bg); border-color: var(--gold); }
+
+  /* ---------- Letter ---------- */
+  #letter { justify-content: flex-start; padding-top: 14vh; padding-bottom: 20vh; }
+  .paper { max-width: 560px; width: 100%; }
+  .paper .to {
+    font-family: "Amiri", serif; font-size: clamp(30px, 7vw, 38px); color: var(--gold);
+    direction: rtl; margin-bottom: 36px;
+  }
+  .paper p {
+    font-family: "Amiri", serif; font-size: clamp(20px, 5vw, 24px); line-height: 2.15;
+    direction: rtl; text-align: center; margin-bottom: 30px;
+    opacity: 0; transform: translateY(14px);
+    transition: opacity 2s ease, transform 2s ease;
+  }
+  .paper p.show { opacity: 1; transform: none; }
+  .paper .sign {
+    font-family: "Amiri", serif; font-size: 26px; color: var(--gold); margin-top: 50px;
+    direction: rtl; opacity: 0; transition: opacity 2.5s ease;
+  }
+  .paper .sign.show { opacity: 1; }
+  .rule {
+    width: 0; height: 1px; background: rgba(217, 184, 119, .45); margin: 44px auto 0;
+    transition: width 2.2s ease;
+  }
+  .rule.show { width: 90px; }
+
+  /* ---------- Ending ---------- */
+  .end {
+    margin-top: 50px; font-size: 17px; letter-spacing: .4em; text-transform: uppercase;
+    color: var(--muted); opacity: 0; transition: opacity 2.5s ease;
+  }
+  .end.show { opacity: 1; }
+
+  /* ---------- Music toggle ---------- */
+  #music {
+    position: fixed; right: 18px; bottom: 18px; z-index: 5;
+    font-family: inherit; font-size: 12px; letter-spacing: .25em; text-transform: uppercase;
+    color: var(--muted); background: rgba(11, 13, 20, .6);
+    border: 1px solid rgba(255, 255, 255, .12); padding: 9px 14px; cursor: pointer;
+    opacity: 0; pointer-events: none; transition: opacity 1.5s ease, color .3s;
+  }
+  #music.on { opacity: 1; pointer-events: auto; }
+  #music:hover { color: var(--ink); }
+
+  @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  @keyframes glow {
+    0%, 100% { text-shadow: 0 0 40px rgba(217, 184, 119, .25); }
+    50%      { text-shadow: 0 0 70px rgba(217, 184, 119, .6); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: .01s !important; transition-duration: .01s !important; }
+  }
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+
+<!-- Put your song next to this file and name it song.mp3 -->
+<audio id="audio" src="song.mp3" loop preload="auto"></audio>
+
+<section id="intro" class="screen">
+  <div class="eyebrow">Something for you</div>
+  <h1 class="name">Nour</h1>
+  <button class="btn" id="open">Open</button>
+</section>
+
+<section id="letter" class="screen hidden">
+  <div class="paper">
+    <!--
+      ✏️ Edit your letter here. Every <p> fades in one after another.
+      Keep the letter in Arabic; everything else on the page stays in English.
+    -->
+    <div class="to">إلى نور،</div>
+
+    <p>اسمك نور، ومن يوم ما عرفتك صار كل شي حولي أوضح.</p>
+    <p>ما بعرف كيف أشرح الإحساس، بس وجودك بيخلي الأيام العادية أحلى، وبيخلّيني أضحك من قلبي أكثر.</p>
+    <p>بحب بساطتك، وضحكتك، وطريقتك بالكلام، وكيف بتخلّي الكل حواليكي مرتاح.</p>
+    <p>كتبتلك هالكلمات لأنو في أشياء بتنقال أحسن لما تنكتب، وبدي تعرفي إنك مهمة عندي كثير.</p>
+    <p>شكراً إنك بحياتي.</p>
+
+    <div class="sign">— من قلبي</div>
+    <div class="rule" id="rule"></div>
+    <div class="end" id="end">Nour</div>
+  </div>
+</section>
+
+<button id="music">Music: on</button>
+
+<script>
+  /* ---------- Quiet starfield ---------- */
+  (function () {
+    const c = document.getElementById('stars'), ctx = c.getContext('2d');
+    let w, h, stars = [];
+    function resize() {
+      w = c.width = innerWidth * devicePixelRatio;
+      h = c.height = innerHeight * devicePixelRatio;
+      stars = Array.from({ length: Math.round(innerWidth * innerHeight / 9000) }, () => ({
+        x: Math.random() * w, y: Math.random() * h,
+        r: (Math.random() * 1.1 + .3) * devicePixelRatio,
+        a: Math.random() * Math.PI * 2, s: Math.random() * .012 + .003
+      }));
+    }
+    function draw() {
+      ctx.clearRect(0, 0, w, h);
+      for (const s of stars) {
+        s.a += s.s;
+        ctx.globalAlpha = .25 + .5 * Math.abs(Math.sin(s.a));
+        ctx.fillStyle = '#f3ecd9';
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
+      }
+      requestAnimationFrame(draw);
+    }
+    addEventListener('resize', resize); resize(); draw();
+  })();
+
+  /* ---------- Open → letter + music ---------- */
+  const audio = document.getElementById('audio');
+  const music = document.getElementById('music');
+  const intro = document.getElementById('intro');
+  const letter = document.getElementById('letter');
+
+  function fadeIn(el, to, ms) {
+    el.volume = 0;
+    const t0 = performance.now();
+    (function step(t) {
+      const k = Math.min((t - t0) / ms, 1);
+      el.volume = to * k;
+      if (k < 1) requestAnimationFrame(step);
+    })(t0);
+  }
+
+  document.getElementById('open').addEventListener('click', () => {
+    audio.play().then(() => { fadeIn(audio, 0.85, 4000); music.classList.add('on'); }).catch(() => {});
+    intro.style.opacity = 0;
+    setTimeout(() => {
+      intro.classList.add('hidden');
+      letter.classList.remove('hidden');
+      window.scrollTo(0, 0);
+      reveal();
+    }, 1400);
+  });
+
+  /* reveal paragraphs one by one, keep the newest one in view */
+  function reveal() {
+    const items = [...document.querySelectorAll('.paper p')];
+    let i = 0;
+    function next() {
+      if (i >= items.length) {
+        document.querySelector('.sign').classList.add('show');
+        setTimeout(() => document.getElementById('rule').classList.add('show'), 2200);
+        setTimeout(() => document.getElementById('end').classList.add('show'), 4000);
+        return;
+      }
+      const p = items[i++];
+      p.classList.add('show');
+      p.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // pause scales with the length of the paragraph so it's readable
+      setTimeout(next, 2200 + p.textContent.length * 55);
+    }
+    setTimeout(next, 800);
+  }
+
+  music.addEventListener('click', () => {
+    if (audio.paused) { audio.play(); music.textContent = 'Music: on'; }
+    else { audio.pause(); music.textContent = 'Music: off'; }
+  });
+</script>
+</body>
+</html>
