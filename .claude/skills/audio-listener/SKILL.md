@@ -1,6 +1,6 @@
 ---
 name: audio-listener
-description: Lets Claude "hear" audio by transcribing it to text — voice notes (WhatsApp/Telegram .opus/.ogg/.m4a), recordings, meetings, calls, podcasts, and the soundtrack of videos (.mp4/.mov/.webm, YouTube links). Use this skill whenever the user sends or mentions an audio or video file, a voice message, "فويس", "تسجيل صوتي", "اسمع", "فرّغ", "حوّل الصوت لنص", "شو بيقول هالفيديو", or asks to transcribe, summarize, translate, or pull action items from anything spoken — even if they never say the word "transcribe". Claude cannot natively listen to audio, so reach for this skill before telling the user you can't process it.
+description: Lets Claude "hear" audio by transcribing speech to text and by measuring music/non-speech sound — voice notes (WhatsApp/Telegram .opus/.ogg/.m4a), recordings, meetings, calls, podcasts, songs, background music, and the soundtrack of videos (.mp4/.mov/.webm, YouTube links). Use this skill whenever the user sends or mentions an audio or video file, a voice message, "فويس", "تسجيل صوتي", "اسمع", "فرّغ", "حوّل الصوت لنص", "شو بيقول هالفيديو", "شو نوع هالموسيقى", "شو إيقاع/مقام هالأغنية", or asks to transcribe, summarize, translate, pull action items from anything spoken, or describe/identify music — even if they never say the word "transcribe". Claude cannot natively listen to audio, so reach for this skill before telling the user you can't process it.
 ---
 
 # Audio Listener
@@ -22,7 +22,29 @@ python <skill-dir>/scripts/prepare_audio.py INPUT --out <scratch>/audio
 
 This strips video, converts to mono 16 kHz, and splits long files into 10‑minute chunks (many APIs cap upload size, and chunking keeps local models from running out of memory). It prints JSON with the ordered `chunks`. Use `--format mp3` if the chosen backend wants a smaller upload. A "no audio stream" error means the video is silent — tell the user rather than inventing content.
 
-## Step 3 — Transcribe (pick the first route that works)
+## Step 2b — Speech or music?
+
+Decide before transcribing, because speech models fed music don't fail loudly — they hallucinate fluent text (repeated phrases, "thanks for watching", random lyrics). Run `analyze_music.py` on the first chunk (a few seconds is enough) and read `speech_likelihood_0_1`, or just ask the user if it's obvious from context.
+
+- Mostly speech → Step 3.
+- Music/no speech → jump to **Step 3m** below. Don't transcribe it.
+- Song with vocals → do both: Step 3m for the musical facts, Step 3 for lyrics (expect errors on sung words; mark them unclear).
+- Transcript came back empty, looping, or implausible → treat it as music/noise and say so.
+
+## Step 3m — Describing music and non-speech sound
+
+```bash
+pip install -q librosa     # once
+python <skill-dir>/scripts/analyze_music.py CHUNK --sections 8
+```
+
+You get tempo (BPM), estimated key/mode, loudness, brightness, percussive share, and a per-section loudness timeline. Turn those numbers into a plain description: e.g. "~120 BPM, minor key, steady drums, gets louder halfway". Be upfront that this is measurement, not listening: tempo can be double/half, and key detection is shaky on non-Western scales (maqam, quarter tones) and on dense mixes. It cannot reliably name instruments, genre, mood, or lyrics' meaning on its own — offer a cautious guess from the numbers and label it as a guess.
+
+To **identify a song** (name/artist), analysis can't do it — that needs audio fingerprinting. Use a connected fingerprint tool if there is one (e.g. via the Composio `insta` MCP search for a recognition tool), or ask the user for any metadata, the video's description, or the platform's "music" tag. Never invent a title.
+
+For a video where the music matters, also look at the video's own metadata/description, which often names the track.
+
+## Step 3 — Transcribe speech (pick the first route that works)
 
 1. **MCP tools already connected** (no setup, best quality for dialects):
    - ElevenLabs `creative_transcribe_audio` — needs the file on a flow first (`creative_attach_reference_file` for a URL, or `creative_create_asset_upload` → PUT bytes → `creative_finalize_asset_upload`), then pass the node as `connect_from`. Poll `creative_get_flow_run_status` until done. This spends the user's credits, so mention it for large files.
