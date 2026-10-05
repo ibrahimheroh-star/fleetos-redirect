@@ -1,11 +1,11 @@
 ---
 name: reels-video-editor
-description: Edit vertical short-form video (Instagram Reels, TikTok, YouTube Shorts) in Arabic and English. Covers reframing to 9:16, trimming dead air and silence, tightening pacing, burning in Arabic/English subtitles (RTL-safe), loudness normalisation, music ducking, and exporting platform-ready MP4s. Make sure to use this skill whenever the user mentions montage, video editing, reels, shorts, TikTok, cutting or trimming a clip, subtitles/captions on a video, resizing a video to vertical, or provides a video file and wants it improved or published, even if they never say "edit" explicitly. Also trigger on Arabic requests such as "مونتاج", "قص الفيديو", "ترجمة الفيديو", "ريلز", "شورتس".
+description: Professional-grade editing of vertical short-form video (Instagram Reels, TikTok, YouTube Shorts) in Arabic and English. Covers reframing to 9:16, silence/dead-air removal, cinematic effects (eased punch-in zooms, camera shake, speed ramps, styled transitions, colour grade, film grain, vignette), animated word-by-word Hormozi-style captions (RTL-safe Arabic), a bundled library of 34 sound effects (whooshes, hits, risers, pops, glitches) with placement rules, music ducking, loudness normalisation, and one-shot JSON-plan builds to platform-ready MP4s. Make sure to use this skill whenever the user mentions montage, video editing, reels, shorts, TikTok, cutting or trimming a clip, subtitles/captions on a video, resizing a video to vertical, or provides a video file and wants it improved or published, even if they never say "edit" explicitly. Also trigger on Arabic requests such as "مونتاج", "قص الفيديو", "ترجمة الفيديو", "ريلز", "شورتس".
 ---
 
 # Reels / Shorts video editor
 
-Turn raw footage into a clean, platform-ready vertical video. Work from a short plan, run deterministic ffmpeg steps through the bundled script, and check the result before handing it over.
+Turn raw footage into a clean, platform-ready vertical video, and when the user wants it to look *professional*, add the cinematic layer (Step 7). Work from a short plan, run deterministic ffmpeg steps through the bundled script, and check the result before handing it over.
 
 ## Why this workflow
 
@@ -64,6 +64,33 @@ Review the transcript itself for mistakes, especially names, numbers and dialect
 
 Before reporting done, verify with `probe` on the output: resolution 1080x1920, duration matches the plan, audio stream present, file size reasonable (under about 100 MB). Extract a frame at the hook and one mid-video and look at them.
 
+## Step 7 - Pro layer: motion, captions, sound design
+
+This is what separates a clean edit from one that feels professionally cut. Read the two reference files before
+using it, since they hold the reasoning and the numbers:
+- `references/techniques.md`: pacing rules, punch-ins, shake, speed ramps, transitions, grade, caption styling, recipe.
+- `references/sound-design.md`: which sound for which moment, levels, where to land it on the cut, free libraries.
+
+Tools live in `scripts/pro_fx.py` (`punch-zoom`, `shake`, `speed-ramp`, `grade`, `transition`, `animated-subs`,
+`sfx-mix`, `sfx-list`, `build`). 34 sound effects ship in `assets/sfx/`; run `sfx-list` to see them.
+
+Default approach for "make it pro / cinematic / viral":
+1. Plan beats first: list the 3-6 emphasis moments, the reveal (if any), and the hook. Put zoom/shake/SFX on those, not everywhere.
+   Restraint is part of the craft: roughly one effect per visual event.
+2. Write a JSON plan (copy `references/plan-example.json`) and run `python scripts/pro_fx.py build plan.json`.
+   The order is fixed (silence cut, reframe, speed, zoom, shake, grade, captions, SFX, music, loudnorm, export), and every
+   time in the plan after `speed` refers to the post-speed timeline.
+3. Check frames at the hook, a zoom, a caption, and the end, using `reel_tools.py frame`. Fix and rebuild if text is cut, a
+   zoom crops a face, or captions overlap.
+4. Pass `--threshold=-35dB` (with the equals sign) for negative-number options, or argparse treats them as flags.
+
+Individual commands are fine when the user wants just one effect (e.g. only captions, only a colour grade).
+Arabic captions: one language per cue, no all-caps, and prefer `animated-subs` over `subs` when the user wants
+word-by-word style.
+Render time is real: a 60 s reel with grade, zoom and captions can take a few minutes. Tell the user so, and work on a short
+test clip first if the plan is long.
+
+
 ## Deliverable
 
 Tell the user, briefly: where the file is, duration, what was cut or changed, and any decision they may want to revisit (e.g. "I used blur background because the speaker was off-centre"). Offer one or two follow-ups, such as a different crop, a version for another platform, or captions in the other language. Do not paste the whole ffmpeg command history.
@@ -90,3 +117,5 @@ If connectors are available, use them where they beat ffmpeg, and fall back to f
 | `mix-music IN MUSIC OUT` | Add ducked background music |
 | `frame IN OUT.jpg --at S` | Extract a still to inspect |
 | `export IN OUT` | Final platform-safe encode |
+
+`scripts/pro_fx.py` (pro layer): `punch-zoom`, `shake`, `speed-ramp`, `grade`, `transition`, `animated-subs`, `sfx-mix`, `sfx-list`, `build PLAN.json`. `scripts/make_sfx.py` regenerates the bundled sound effects.
