@@ -38,12 +38,13 @@ before placing effects. Commands: `pro_fx.py sfx-list` (see what is bundled) and
 | Dramatic emphasis / tension | `tension_drone` underneath, `heartbeat`, `sub_drop` | -22 / -20 / -14 |
 | Retro / nostalgic texture | `vinyl_crackle` under music | -30 |
 
-## Bundled library (34 files in `assets/sfx/`, peak-normalised to -3 dB)
+## Bundled library (37 files in `assets/sfx/`, peak-normalised to -3 dB)
 Whooshes: `whoosh_short`, `whoosh_medium`, `whoosh_long`, `swish_fast`, `whoosh_rise`, `whoosh_fall`.
 Impacts: `impact_hit`, `impact_heavy`, `boom_sub`, `sub_drop`, `hit_snap`, `stinger_cinematic`.
 Risers/builds: `riser_short`, `riser_long`, `tension_drone`, `reverse_hit`.
 UI/pop: `pop`, `pop_soft`, `click`, `tick`, `keyboard_key`, `camera_shutter`, `ding`, `success_chime`, `error_buzz`, `notification`.
 Glitch/digital: `glitch_short`, `glitch_long`, `digital_zap`, `record_scratch`, `laser`.
+Engine/mechanical: `engine_rev`, `engine_idle`, `engine_start` (motors, cars, machinery content).
 Texture: `swoosh_air`, `vinyl_crackle`, `heartbeat`.
 
 These are **synthesised** (noise + sine sweeps + envelopes by `scripts/make_sfx.py`), so they are original and free to

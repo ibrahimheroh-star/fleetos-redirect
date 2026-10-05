@@ -1,0 +1,32 @@
+{
+  "input": "engine_silent.mp4",
+  "output": "engine_motion_5s.mp4",
+
+  "grade": { "look": "clean", "grain": 0.15, "vignette": 0.3 },
+
+  "sfx": [
+    { "t": 0.00, "name": "swoosh_air",  "db": -26 },
+    { "t": 0.10, "name": "whoosh_rise", "db": -16 },
+
+    { "t": 0.78, "name": "impact_hit",  "db": -9  },
+    { "t": 0.78, "name": "boom_sub",    "db": -12 },
+    { "t": 0.80, "name": "engine_rev",  "db": -12 },
+
+    { "t": 1.30, "name": "pop",         "db": -15 },
+    { "t": 1.60, "name": "pop",         "db": -15 },
+    { "t": 1.95, "name": "hit_snap",    "db": -10 },
+    { "t": 2.00, "name": "impact_hit",  "db": -13 },
+
+    { "t": 2.35, "name": "engine_rev",  "db": -11 },
+    { "t": 3.05, "name": "pop",         "db": -15 },
+    { "t": 3.35, "name": "pop",         "db": -15 },
+    { "t": 3.65, "name": "hit_snap",    "db": -10 },
+    { "t": 3.65, "name": "impact_hit",  "db": -12 },
+
+    { "t": 4.30, "name": "whoosh_short","db": -18 },
+    { "t": 4.60, "name": "pop",         "db": -14 },
+    { "t": 4.62, "name": "ding",        "db": -22 }
+  ],
+  "loudnorm": true,
+  "crf": 18
+}

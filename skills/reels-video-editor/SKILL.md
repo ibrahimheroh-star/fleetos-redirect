@@ -1,6 +1,6 @@
 ---
 name: reels-video-editor
-description: Professional-grade editing of vertical short-form video (Instagram Reels, TikTok, YouTube Shorts) in Arabic and English. Covers reframing to 9:16, silence/dead-air removal, cinematic effects (eased punch-in zooms, camera shake, speed ramps, styled transitions, colour grade, film grain, vignette), animated word-by-word Hormozi-style captions (RTL-safe Arabic), a bundled library of 34 sound effects (whooshes, hits, risers, pops, glitches) with placement rules, music ducking, loudness normalisation, and one-shot JSON-plan builds to platform-ready MP4s. Make sure to use this skill whenever the user mentions montage, video editing, reels, shorts, TikTok, cutting or trimming a clip, subtitles/captions on a video, resizing a video to vertical, or provides a video file and wants it improved or published, even if they never say "edit" explicitly. Also trigger on Arabic requests such as "مونتاج", "قص الفيديو", "ترجمة الفيديو", "ريلز", "شورتس".
+description: Professional-grade editing of vertical short-form video (Instagram Reels, TikTok, YouTube Shorts) in Arabic and English. Covers reframing to 9:16, silence/dead-air removal, cinematic effects (eased punch-in zooms, camera shake, speed ramps, styled transitions, colour grade, film grain, vignette), animated word-by-word Hormozi-style captions (RTL-safe Arabic), a bundled library of 37 sound effects (whooshes, hits, risers, pops, glitches) with placement rules, music ducking, loudness normalisation, and one-shot JSON-plan builds to platform-ready MP4s. Make sure to use this skill whenever the user mentions montage, video editing, reels, shorts, TikTok, cutting or trimming a clip, subtitles/captions on a video, resizing a video to vertical, or provides a video file and wants it improved or published, even if they never say "edit" explicitly. Also trigger on Arabic requests such as "مونتاج", "قص الفيديو", "ترجمة الفيديو", "ريلز", "شورتس".
 ---
 
 # Reels / Shorts video editor
@@ -72,7 +72,7 @@ using it, since they hold the reasoning and the numbers:
 - `references/sound-design.md`: which sound for which moment, levels, where to land it on the cut, free libraries.
 
 Tools live in `scripts/pro_fx.py` (`punch-zoom`, `shake`, `speed-ramp`, `grade`, `transition`, `animated-subs`,
-`sfx-mix`, `sfx-list`, `build`). 34 sound effects ship in `assets/sfx/`; run `sfx-list` to see them.
+`sfx-mix`, `sfx-list`, `build`). 37 sound effects ship in `assets/sfx/`; run `sfx-list` to see them.
 
 Default approach for "make it pro / cinematic / viral":
 1. Plan beats first: list the 3-6 emphasis moments, the reveal (if any), and the hook. Put zoom/shake/SFX on those, not everywhere.
@@ -89,6 +89,23 @@ Arabic captions: one language per cue, no all-caps, and prefer `animated-subs` o
 word-by-word style.
 Render time is real: a 60 s reel with grade, zoom and captions can take a few minutes. Tell the user so, and work on a short
 test clip first if the plan is long.
+
+
+## Still image to motion graphic (no footage)
+
+When the user sends only an image (logo, product, illustration) and wants an animation, build it with
+`examples/image_to_motion.py` (pillow + numpy; needs a PNG with transparency for the best result), then finish with the
+same pro layer:
+1. `python examples/image_to_motion.py IMAGE silent.mp4 --lines "LINE ONE" "LINE TWO" --cta "FOLLOW FOR MORE"` renders
+   5 s: ring burst, overshoot pop-in, impact flash, sparks, screen shake, idle vibration that revs on caption beats,
+   word-by-word captions (last word is the yellow hero word), and a CTA pill.
+2. Copy `examples/engine_motion_plan.json`, point `input` at the silent clip, and run `python scripts/pro_fx.py build`.
+   The SFX times in that plan are synced to the beat constants at the top of `image_to_motion.py` (`LAND`, `REVS`,
+   `PHRASES`, `CTA_AT`). If you retime the animation, move the cues with it.
+3. Pick sounds that match the subject (the library has `engine_rev`, `engine_idle`, `engine_start` for motors; use
+   `camera_shutter`, `ding`, `glitch_*` for other themes). Write captions in the user's language: keep captions short
+   (2-3 words per line), since long words overflow the 1080 px width.
+Reference output: `examples/engine_motion_5s.mp4`.
 
 
 ## Deliverable

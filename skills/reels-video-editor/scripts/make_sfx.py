@@ -100,6 +100,25 @@ gen("digital_zap", f"sin({TAU}*(4000-3500*t/0.25)*t)*lt(t,0.25)*exp(-8*t)", 0.25
 gen("record_scratch", f"({N}*0.5+sin({TAU}*(700-600*t/0.5)*t)*0.5)*lt(t,0.5)*min(t/0.02,1)", 0.5, "highpass=f=400,lowpass=f=6000,tremolo=f=22:d=0.7")
 gen("laser", f"sin({TAU}*(3500*exp(-9*t)+200)*t)*exp(-6*t)", 0.45, "")
 
+
+# ---- ENGINE / MECHANICAL (motorcycle, car, machinery content) ---------------------------
+# rev: pitch climbs from ~45 Hz to ~200 Hz with firing pulses (harmonics + pulsed noise), then a short fall-off
+_ph = f"{TAU}*(45*t+52*t*t)"
+gen("engine_rev",
+    f"((sin({_ph})+0.5*sin(2*{_ph})+0.33*sin(3*{_ph})+0.25*sin(4*{_ph})+0.15*sin(6*{_ph}))*0.5"
+    f"+{N}*0.25*gt(sin({_ph}/2),0.2))*min(t/0.08,1)*exp(-4*max(t-1.45,0))", 2.0,
+    "lowpass=f=2600,highpass=f=35,asoftclip=type=tanh,aecho=0.6:0.5:35:0.2")
+# idle: low lumpy thump (~28 Hz firing) with slight wobble, good as a bed under engine shots
+_idle = f"{TAU}*(28*t+0.6*sin(2*PI*0.7*t))"
+gen("engine_idle",
+    f"((sin({_idle})+0.6*sin(2*{_idle})+0.35*sin(3*{_idle}))*0.6+{N}*0.15*gt(sin({_idle}/2),0.3))"
+    f"*min(t/0.2,1)*min((3-t)/0.3,1)", 3.0,
+    "lowpass=f=900,highpass=f=30,asoftclip=type=tanh")
+# ignition: starter whirr into a cough
+gen("engine_start",
+    f"(sin({TAU}*(60*t+80*t*t))*0.5+{N}*0.3*gt(sin({TAU}*(20*t+60*t*t)),0.4))*min(t/0.05,1)*exp(-2*max(t-0.9,0))*lt(t,1.6)", 1.6,
+    "lowpass=f=2200,highpass=f=40,asoftclip=type=tanh")
+
 # ---- AMBIENCE / TEXTURE (transitions, underscores) --------------------------------------
 gen("swoosh_air", f"{N}*pow(sin(PI*min(t/1.0,1)),0.8)*0.25", 1.0, "lowpass=f=2500,highpass=f=300")
 gen("vinyl_crackle", f"({N}*gt(random(1),0.995)*0.9+0.03*{N})*min(t/0.3,1)", 3.0, "highpass=f=1500")
