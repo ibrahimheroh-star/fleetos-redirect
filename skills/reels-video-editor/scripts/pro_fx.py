@@ -10,7 +10,7 @@ import argparse, json, os, re, subprocess, sys, tempfile
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from reel_tools import run, probe_data, has_audio, pick_font, W, H  # noqa: E402
 
-SFX_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "sfx")
+from assets_path import SFX_DIR, MUSIC_DIR  # noqa: E402  (unpacks the sound library on first use)
 FPS = 30
 
 
@@ -338,7 +338,7 @@ def build(plan_path):
         m = plan["music"]; o = nxt()
         mf = m["file"]
         if not os.path.isfile(mf):     # allow bare names of the bundled beds, e.g. "bed_hype_trap_140"
-            mf = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "music", mf + ("" if mf.endswith(".mp3") else ".mp3"))
+            mf = os.path.join(MUSIC_DIR, mf + ("" if mf.endswith(".mp3") else ".mp3"))
         subprocess.run([sys.executable, os.path.join(os.path.dirname(__file__), "reel_tools.py"), "mix-music",
                         cur, mf, o, "--music-db", str(m.get("db", -14))], check=True, capture_output=True)
         cur = o

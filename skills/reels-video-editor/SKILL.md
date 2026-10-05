@@ -80,7 +80,9 @@ Tools (all in `scripts/`, each has `--help`; `list` prints every option):
 | `pro_fx.py` | `punch-zoom`, `shake`, `speed-ramp`, `grade`, `transition`, `animated-subs`, `sfx-mix`, `sfx-list`, and `build` (full JSON plan) |
 | `fx_pack.py` | 36 effects on a time window: `rgb-split`, `glitch`, `flash`, `freeze`, `reverse`, `stutter`, `light-leak`, `vhs`, `glow`, `tilt-shift`, `beat-pulse`, `pip`, `split-screen`, `ken-burns`, `stabilize`, ... |
 | `mg.py` | 29 animated overlays rendered with alpha (`lower-third`, `title-card`, `counter`, `bar-chart`, `callout-circle`, `follow-button`, `confetti`, `speed-lines`, `logo-reveal`...) and `overlay` to composite them at a time |
-| `make_sfx.py`, `make_sfx2.py` | regenerate the synthesised sound library and music beds |
+| `make_sfx.py`, `make_sfx2.py` | regenerate the synthesised sound library and music beds (then re-pack: `tar -czf assets/sound_library.tar.gz -C assets sfx music`) |
+
+The 188 sounds and 7 music beds ship as ONE archive, `assets/sound_library.tar.gz` (Claude.ai rejects skills with over 200 files). Any script that needs them unpacks it automatically on first use (next to the skill, or into a temp folder if that is read-only), so `assets/sfx/` and `assets/music/` appear after the first run.
 
 Default approach for "make it pro / cinematic / viral":
 1. Plan beats first: the hook, 3-6 emphasis moments, the reveal, the CTA. Put effects, overlays and SFX on those.

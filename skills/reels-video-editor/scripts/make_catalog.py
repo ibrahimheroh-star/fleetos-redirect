@@ -3,8 +3,9 @@
 import os, subprocess, sys
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 import fx_pack, mg  # noqa: E402
+from assets_path import SFX_DIR, MUSIC_DIR  # noqa: E402
 
-ROOT = os.path.join(HERE, ".."); SFX = os.path.join(ROOT, "assets", "sfx"); MUS = os.path.join(ROOT, "assets", "music")
+ROOT = os.path.join(HERE, ".."); SFX, MUS = SFX_DIR, MUSIC_DIR
 CATS = [  # first matching keyword wins
     ("Whooshes, swishes & transitions", ["whoosh", "swish", "swoosh", "swipe", "sweep", "spin", "flutter"]),
     ("Impacts, hits, booms & stingers", ["impact", "hit", "boom", "stinger", "braam", "gong", "bell_toll", "tail", "sub_drop", "brass", "vine"]),
