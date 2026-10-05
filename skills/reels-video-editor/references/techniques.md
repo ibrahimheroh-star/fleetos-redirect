@@ -68,6 +68,25 @@ Always add a whoosh whose peak lands on the cut (see sound-design.md).
    One-shot: write a JSON plan (see `plan-example.json`) and run `pro_fx.py build plan.json`.
    Remember: times in the plan after `speed` refer to the post-speed timeline.
 
+## Recipes by goal (which effects + overlays + sounds)
+| Goal | Moves |
+|---|---|
+| **Hook in the first second** | `riser` into `impact_hit`; `punch-zoom` 1.25 on the first word; `rgb-split` or `glitch` 0.2 s on the hit; hook text via `kinetic-words` or `title-card`; optional `speed-lines` |
+| **Reveal / "wait for it"** | `reverse_hit` to a hard cut, `flash` + `shake` + `impact_heavy`; `speed-ramp` slow-mo into the reveal; `light-leak` after it |
+| **Product / sales** | `sale-badge`, `counter` (price or %), `callout-circle` on the product, `arrow-pointer`, `confetti` on the CTA, `follow-button`/`social-handle` at the end |
+| **Tutorial / how-to** | `step-number` for each step, `checklist` for summaries, `highlight-box` on key terms, `callout-circle` to point at the screen, `progress-bar` for retention |
+| **Stats / proof** | `counter`, `progress-ring`, `bar-chart`, `rating-stars`; `ding`/`tick_up` sounds; `glow` on the number |
+| **Storytelling / emotion** | `ken-burns` on photos, `slideshow`, `old-film` or `vhs` for flashbacks, `fade-io`, `bed_cinematic_pad_70`, `letterbox` |
+| **Humour / meme** | `freeze` + `vine_boom`, `stutter` on a funny word, `zoom` 1.4 + `airhorn`, `invert-flash`, `color-pop` |
+| **Tech / futuristic** | `glitch`, `scanlines`, `rgb-split`, `hologram`/`scanner` sounds, `neon-text`, `trail` |
+| **Fast montage / music edit** | cut on the beat, `beat-pulse` at the song BPM, `strobe` on drops, `whoosh_*` on every cut, `transition` with `slide*`/`zoomin` |
+| **Before/after** | `before-after` template, `split-screen`, `whoosh` + `ding` when the divider crosses the subject |
+| **Location / travel** | `location-pin`, `ken-burns`, `tilt-shift`, `light-leak`, `bed_lofi_chill_78` |
+| **Arabic content** | `bed_oriental_darbuka_96`, Arabic text in any template, `animated-subs --lang ar`, `lower-third` with Arabic name |
+
+Rule of thumb: **one big move per beat, small moves in between.** Stack at most three layers on a single moment (e.g. zoom + hit + RGB split),
+and leave 1-2 s of calm between big moments so the next one lands.
+
 ## Sources
 - [Insta360: film transitions](https://www.insta360.com/blog/tips/how-to-create-film-transitions.html), [Pond5: creative editing techniques](https://blog.pond5.com/11099-13-creative-editing-techniques-every-video-editor-should-know/), [Nikon: 10 tricks to add pace and energy](https://www.nikon.co.uk/en_GB/learn-and-explore/magazine/tips-and-tricks/cut-to-the-chase-10-tricks-to-add-pace-and-energy-to-your-edits), [Inside Editors: professional transitions](https://insideeditors.com/video-editing-transitions/), [AICut: transitions for viral shorts](https://www.aicut.pro/blog/cool-video-transitions)
 - [Wikipedia: cutting on action](https://en.wikipedia.org/wiki/Cutting_on_action), [Captions.ai: using B-roll](https://captions.ai/blog/practical-guide-b-roll-video), [Virlo: 11 tips to edit like a pro](https://virlo.ai/blog/how-to-edit-videos-like-a-pro)

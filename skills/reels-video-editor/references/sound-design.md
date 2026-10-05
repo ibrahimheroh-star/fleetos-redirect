@@ -38,19 +38,37 @@ before placing effects. Commands: `pro_fx.py sfx-list` (see what is bundled) and
 | Dramatic emphasis / tension | `tension_drone` underneath, `heartbeat`, `sub_drop` | -22 / -20 / -14 |
 | Retro / nostalgic texture | `vinyl_crackle` under music | -30 |
 
-## Bundled library (37 files in `assets/sfx/`, peak-normalised to -3 dB)
-Whooshes: `whoosh_short`, `whoosh_medium`, `whoosh_long`, `swish_fast`, `whoosh_rise`, `whoosh_fall`.
-Impacts: `impact_hit`, `impact_heavy`, `boom_sub`, `sub_drop`, `hit_snap`, `stinger_cinematic`.
-Risers/builds: `riser_short`, `riser_long`, `tension_drone`, `reverse_hit`.
-UI/pop: `pop`, `pop_soft`, `click`, `tick`, `keyboard_key`, `camera_shutter`, `ding`, `success_chime`, `error_buzz`, `notification`.
-Glitch/digital: `glitch_short`, `glitch_long`, `digital_zap`, `record_scratch`, `laser`.
-Engine/mechanical: `engine_rev`, `engine_idle`, `engine_start` (motors, cars, machinery content).
-Texture: `swoosh_air`, `vinyl_crackle`, `heartbeat`.
+## Bundled library (188 sounds + 7 music beds)
+The full list, grouped by category with durations, is in `references/catalog.md` (run `pro_fx.py sfx-list` for names). Categories:
+whooshes/swishes/transitions, impacts/hits/booms/stingers, risers/builds/downlifters, drums & percussion (incl. darbuka and tabla),
+engine & mechanical, UI/interface/social (pops, taps, toggles, typing, like, notification), cartoon & fun, game/8-bit, sci-fi/glitch/tech,
+real-world foley (synthetic: whip, punch, water, thunder, clock, cash register...), comedy/meme/emotion (airhorn, sad trombone, tada,
+vine boom, record scratch, applause).
 
-These are **synthesised** (noise + sine sweeps + envelopes by `scripts/make_sfx.py`), so they are original and free to
-use commercially with no attribution. They are clean and functional, not recorded. For hero moments (the
-main hook hit, a signature whoosh) a real recorded sample sounds richer, so use the libraries below when the user can
-download from them. Regenerate or tweak with `python scripts/make_sfx.py`.
+Extra moments and sounds (beyond the table above):
+| Moment | Use |
+|---|---|
+| Money / sales / result | `cash_register`, `coin_drop`, `success_fanfare`, `tada` |
+| Countdown / urgency | `countdown_beep`, `clock_ticking`, `stopwatch`, `alarm`, `tick_up` (numbers climbing) |
+| Meme / joke beat | `vine_boom`, `airhorn`, `sad_trombone`, `record_scratch`, `bruh_low`, `crickets`, `ba_dum_tss`, `dun_dun_dun` |
+| Magic / sparkle / glow-up | `magic_chime`, `shine_sparkle`, `shimmer`, `pickup_sparkle` |
+| Sports / action / fight | `punch`, `slap`, `whip_crack`, `sword_swish`, `crash_cymbal`, `whoosh_heavy` |
+| Tech / futuristic / AI | `hologram`, `scanner`, `data_stream`, `warp`, `teleport`, `power_charge`, `glitch_*` |
+| Rewind / flashback | `tape_rewind`, `vhs_rewind`, `vinyl_stop`, `tape_stop` (pair with the `reverse` or `vhs` effect) |
+| Engines / machines | `engine_start`, `engine_rev`, `engine_idle`, `door_knock` for non-engine knocks |
+| Arabic / oriental feel | `darbuka_dum`, `darbuka_tek`, `darbuka_ka`, `tabla_tin`, and the `bed_oriental_darbuka_96` music bed |
+
+### Music beds (`assets/music/`, 7 loops, synthesised)
+`bed_hype_trap_140` (gym, cars, hype), `bed_edm_drive_128` (energy, transformations), `bed_corporate_upbeat_120` (business, product),
+`bed_lofi_chill_78` (calm, study, aesthetic), `bed_cinematic_pad_70` (story, emotion, reveal), `bed_suspense_tick_90` (mystery, countdown),
+`bed_oriental_darbuka_96` (Arabic and Middle-East content). Match tempo to cut rhythm: cut on the beat (beat = 60/BPM seconds) and use
+the `beat-pulse` effect with the same BPM. In a plan: `"music": {"file": "bed_hype_trap_140", "db": -22}` (they duck under speech and SFX).
+Beds are generated procedurally, so they are clean and loop-safe but not a substitute for a produced track when the video is mainly music.
+Regenerate or tweak with `python scripts/make_sfx2.py` (`--only NAME` for one file).
+
+These are **synthesised** (numpy/ffmpeg: noise, sine sweeps, envelopes, Karplus-Strong strings), so they are original and free to use
+commercially with no attribution. They are clean and functional, not recorded; for hero moments (the main hook hit, a signature whoosh)
+a real recorded sample sounds richer, so use the libraries below when the user can download from them.
 
 ## Where to get more (real recordings, free)
 Check each site's current licence before commercial use or client work.

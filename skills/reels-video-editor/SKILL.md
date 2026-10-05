@@ -1,6 +1,6 @@
 ---
 name: reels-video-editor
-description: Professional-grade editing of vertical short-form video (Instagram Reels, TikTok, YouTube Shorts) in Arabic and English. Covers reframing to 9:16, silence/dead-air removal, cinematic effects (eased punch-in zooms, camera shake, speed ramps, styled transitions, colour grade, film grain, vignette), animated word-by-word Hormozi-style captions (RTL-safe Arabic), a bundled library of 37 sound effects (whooshes, hits, risers, pops, glitches) with placement rules, music ducking, loudness normalisation, and one-shot JSON-plan builds to platform-ready MP4s. Make sure to use this skill whenever the user mentions montage, video editing, reels, shorts, TikTok, cutting or trimming a clip, subtitles/captions on a video, resizing a video to vertical, or provides a video file and wants it improved or published, even if they never say "edit" explicitly. Also trigger on Arabic requests such as "مونتاج", "قص الفيديو", "ترجمة الفيديو", "ريلز", "شورتس".
+description: Professional-grade editing of vertical short-form video (Instagram Reels, TikTok, YouTube Shorts) in Arabic and English. Covers reframing to 9:16, silence removal, 36 cinematic video effects (punch-in zooms, shake, speed ramps, glitch, RGB split, freeze/reverse/stutter, light leaks, VHS, glow, tilt-shift, beat-pulse...), 29 animated motion-graphic templates (lower thirds, kinetic titles, counters, charts, callouts, follow button, confetti, speed lines, logo reveals...), 57 transitions, animated word-by-word captions with RTL-safe Arabic, 188 sound effects and 7 music beds with placement rules, still-image-to-animation, one-shot JSON-plan builds, and loudness-normalised platform-ready export. Make sure to use this skill whenever the user mentions montage, video editing, reels, shorts, TikTok, motion graphics, animating an image or logo, adding effects, sound effects, captions or subtitles, cutting or trimming a clip, resizing a video to vertical, or provides a video or image and wants it to look professional, even if they never say 'edit'. Also trigger on Arabic requests such as مونتاج, موشن جرافيك, قص الفيديو, ترجمة الفيديو, ريلز, شورتس, مؤثرات.
 ---
 
 # Reels / Shorts video editor
@@ -64,32 +64,39 @@ Review the transcript itself for mistakes, especially names, numbers and dialect
 
 Before reporting done, verify with `probe` on the output: resolution 1080x1920, duration matches the plan, audio stream present, file size reasonable (under about 100 MB). Extract a frame at the hook and one mid-video and look at them.
 
-## Step 7 - Pro layer: motion, captions, sound design
+## Step 7 - Pro layer: effects, motion graphics, sound design
 
-This is what separates a clean edit from one that feels professionally cut. Read the two reference files before
-using it, since they hold the reasoning and the numbers:
-- `references/techniques.md`: pacing rules, punch-ins, shake, speed ramps, transitions, grade, caption styling, recipe.
-- `references/sound-design.md`: which sound for which moment, levels, where to land it on the cut, free libraries.
+This is what separates a clean edit from one that feels professionally cut. The more of these a video uses *in the right
+places*, the better it feels, but every effect should answer a visual event (a hit, a reveal, a topic change), because
+effects with no reason read as noise. Read before using:
+- `references/catalog.md`: the full menu, auto-generated. 36 video effects, 29 motion-graphic templates, 57 transitions, 188 sounds,
+  7 music beds, looks and caption styles, each with its parameters. Check it for the right tool instead of guessing names.
+- `references/techniques.md`: pacing rules, which move for which moment, caption styling, structure of a high-retention short.
+- `references/sound-design.md`: which sound for which moment, levels, landing sounds on the cut.
 
-Tools live in `scripts/pro_fx.py` (`punch-zoom`, `shake`, `speed-ramp`, `grade`, `transition`, `animated-subs`,
-`sfx-mix`, `sfx-list`, `build`). 37 sound effects ship in `assets/sfx/`; run `sfx-list` to see them.
+Tools (all in `scripts/`, each has `--help`; `list` prints every option):
+| Script | Does |
+|---|---|
+| `pro_fx.py` | `punch-zoom`, `shake`, `speed-ramp`, `grade`, `transition`, `animated-subs`, `sfx-mix`, `sfx-list`, and `build` (full JSON plan) |
+| `fx_pack.py` | 36 effects on a time window: `rgb-split`, `glitch`, `flash`, `freeze`, `reverse`, `stutter`, `light-leak`, `vhs`, `glow`, `tilt-shift`, `beat-pulse`, `pip`, `split-screen`, `ken-burns`, `stabilize`, ... |
+| `mg.py` | 29 animated overlays rendered with alpha (`lower-third`, `title-card`, `counter`, `bar-chart`, `callout-circle`, `follow-button`, `confetti`, `speed-lines`, `logo-reveal`...) and `overlay` to composite them at a time |
+| `make_sfx.py`, `make_sfx2.py` | regenerate the synthesised sound library and music beds |
 
 Default approach for "make it pro / cinematic / viral":
-1. Plan beats first: list the 3-6 emphasis moments, the reveal (if any), and the hook. Put zoom/shake/SFX on those, not everywhere.
-   Restraint is part of the craft: roughly one effect per visual event.
-2. Write a JSON plan (copy `references/plan-example.json`) and run `python scripts/pro_fx.py build plan.json`.
-   The order is fixed (silence cut, reframe, speed, zoom, shake, grade, captions, SFX, music, loudnorm, export), and every
-   time in the plan after `speed` refers to the post-speed timeline.
-3. Check frames at the hook, a zoom, a caption, and the end, using `reel_tools.py frame`. Fix and rebuild if text is cut, a
-   zoom crops a face, or captions overlap.
-4. Pass `--threshold=-35dB` (with the equals sign) for negative-number options, or argparse treats them as flags.
+1. Plan beats first: the hook, 3-6 emphasis moments, the reveal, the CTA. Put effects, overlays and SFX on those.
+2. Write a JSON plan (copy `references/plan-example.json`; keys: `cut_silence`, `reframe`, `speed`, `effects`, `zooms`, `shakes`,
+   `grade`, `overlays`, `subs`, `sfx`, `music`, `loudnorm`) and run `python scripts/pro_fx.py build plan.json`. Order is fixed;
+   put length-changing effects (`freeze`, `reverse`, `stutter`) first in `effects`, and everything after them uses the new timeline.
+3. Check frames at the hook, a zoom, an overlay, a caption, and the end with `reel_tools.py frame`. Fix and rebuild if text is cut,
+   a zoom crops a face, or overlays collide with captions (captions sit at ~1335-1495 px on a 1920 canvas; keep overlays off that band).
+4. Pass negative numbers as `--threshold=-35dB` (with `=`), or argparse treats them as flags.
+5. Colour blends (`glow`, `toon`, `light-leak`) must run in RGB; the scripts handle it, but if you write your own `blend`, convert with
+   `format=gbrp` first or the frame tints magenta.
 
-Individual commands are fine when the user wants just one effect (e.g. only captions, only a colour grade).
-Arabic captions: one language per cue, no all-caps, and prefer `animated-subs` over `subs` when the user wants
-word-by-word style.
-Render time is real: a 60 s reel with grade, zoom and captions can take a few minutes. Tell the user so, and work on a short
-test clip first if the plan is long.
-
+Individual commands are fine when the user wants one thing. Arabic captions: one language per cue, no all-caps; use `animated-subs`
+for word-by-word style. Overlay text supports Arabic too (it is shaped and ordered correctly).
+Render time is real: a 5 s clip with several effects and overlays takes about a minute, a 60 s reel several minutes. Tell the user, and
+work on a short test clip first if the plan is long.
 
 ## Still image to motion graphic (no footage)
 
@@ -105,7 +112,7 @@ same pro layer:
 3. Pick sounds that match the subject (the library has `engine_rev`, `engine_idle`, `engine_start` for motors; use
    `camera_shutter`, `ding`, `glitch_*` for other themes). Write captions in the user's language: keep captions short
    (2-3 words per line), since long words overflow the 1080 px width.
-Reference output: `examples/engine_motion_5s.mp4`.
+Reference outputs: `examples/engine_motion_5s.mp4` (base animation + SFX) and `examples/engine_pro_demo_5s.mp4` (same animation with RGB split, glitch, lens distortion, light leak, lower third, speed lines, hearts, extra SFX and a music bed; built by `examples/engine_pro_plan.json`).
 
 
 ## Deliverable
@@ -135,4 +142,4 @@ If connectors are available, use them where they beat ffmpeg, and fall back to f
 | `frame IN OUT.jpg --at S` | Extract a still to inspect |
 | `export IN OUT` | Final platform-safe encode |
 
-`scripts/pro_fx.py` (pro layer): `punch-zoom`, `shake`, `speed-ramp`, `grade`, `transition`, `animated-subs`, `sfx-mix`, `sfx-list`, `build PLAN.json`. `scripts/make_sfx.py` regenerates the bundled sound effects.
+Pro layer scripts (`pro_fx.py`, `fx_pack.py`, `mg.py`, `make_sfx*.py`, `make_catalog.py`) are described in Step 7; the catalog lists every option.

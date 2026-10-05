@@ -1,0 +1,212 @@
+{
+  "input": "engine_silent.mp4",
+  "output": "engine_pro_demo_5s.mp4",
+  "effects": [
+    {
+      "name": "rgb-split",
+      "at": [
+        0.8,
+        1.02
+      ],
+      "p": {
+        "amount": 24
+      }
+    },
+    {
+      "name": "glitch",
+      "at": [
+        1.95,
+        2.25
+      ]
+    },
+    {
+      "name": "lens-distort",
+      "at": [
+        3.65,
+        3.9
+      ],
+      "p": {
+        "k": 0.3
+      }
+    },
+    {
+      "name": "rgb-split",
+      "at": [
+        3.65,
+        3.9
+      ],
+      "p": {
+        "amount": 20
+      }
+    },
+    {
+      "name": "light-leak",
+      "at": [
+        4.05,
+        4.55
+      ],
+      "p": {
+        "strength": 0.4
+      }
+    },
+    {
+      "name": "progress-bar",
+      "p": {
+        "pos": "top",
+        "color": "FFD933",
+        "height": 10
+      }
+    }
+  ],
+  "grade": {
+    "look": "clean",
+    "grain": 0.15,
+    "vignette": 0.3
+  },
+  "overlays": [
+    {
+      "template": "lower-third",
+      "at": 0.3,
+      "dur": 3.2,
+      "p": {
+        "name": "ENGINE SERIES",
+        "title": "V-TWIN 750CC",
+        "y": 0.07
+      }
+    },
+    {
+      "template": "speed-lines",
+      "at": 0.78,
+      "dur": 0.45,
+      "p": {
+        "inner": 0.3
+      }
+    },
+    {
+      "template": "speed-lines",
+      "at": 3.62,
+      "dur": 0.45,
+      "p": {
+        "inner": 0.3
+      }
+    },
+    {
+      "template": "like-burst",
+      "at": 4.45,
+      "dur": 1.5
+    }
+  ],
+  "sfx": [
+    {
+      "t": 0.0,
+      "name": "swoosh_air",
+      "db": -26
+    },
+    {
+      "t": 0.1,
+      "name": "whoosh_rise",
+      "db": -16
+    },
+    {
+      "t": 0.28,
+      "name": "swipe",
+      "db": -20
+    },
+    {
+      "t": 0.78,
+      "name": "impact_hit",
+      "db": -9
+    },
+    {
+      "t": 0.78,
+      "name": "boom_sub",
+      "db": -12
+    },
+    {
+      "t": 0.8,
+      "name": "engine_rev",
+      "db": -12
+    },
+    {
+      "t": 1.3,
+      "name": "pop",
+      "db": -15
+    },
+    {
+      "t": 1.6,
+      "name": "pop",
+      "db": -15
+    },
+    {
+      "t": 1.95,
+      "name": "glitch_short",
+      "db": -17
+    },
+    {
+      "t": 1.95,
+      "name": "hit_snap",
+      "db": -10
+    },
+    {
+      "t": 2.0,
+      "name": "impact_hit",
+      "db": -13
+    },
+    {
+      "t": 2.35,
+      "name": "engine_rev",
+      "db": -11
+    },
+    {
+      "t": 3.05,
+      "name": "pop",
+      "db": -15
+    },
+    {
+      "t": 3.35,
+      "name": "pop",
+      "db": -15
+    },
+    {
+      "t": 3.45,
+      "name": "reverse_cymbal",
+      "db": -20
+    },
+    {
+      "t": 3.65,
+      "name": "hit_snap",
+      "db": -10
+    },
+    {
+      "t": 3.65,
+      "name": "impact_hit",
+      "db": -12
+    },
+    {
+      "t": 4.3,
+      "name": "whoosh_short",
+      "db": -18
+    },
+    {
+      "t": 4.5,
+      "name": "like_pop",
+      "db": -14
+    },
+    {
+      "t": 4.6,
+      "name": "pop_double",
+      "db": -15
+    },
+    {
+      "t": 4.62,
+      "name": "shine_sparkle",
+      "db": -22
+    }
+  ],
+  "music": {
+    "file": "bed_hype_trap_140",
+    "db": -14
+  },
+  "loudnorm": true,
+  "crf": 18
+}

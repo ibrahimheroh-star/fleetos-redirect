@@ -114,9 +114,13 @@ def grade(inp, out, look="cinematic", grain=0.3, vignette=0.25):
 
 
 # --------------------------------------------------------------------------- transitions
-XFADES = ["fade", "fadeblack", "fadewhite", "dissolve", "slideleft", "slideright", "slideup", "slidedown",
-          "smoothleft", "smoothright", "wipeleft", "wiperight", "circleopen", "circleclose", "zoomin",
-          "pixelize", "radial", "hblur", "squeezeh", "squeezev", "distance", "diagtl", "rectcrop"]
+XFADES = ["fade", "fadeblack", "fadewhite", "fadegrays", "fadefast", "fadeslow", "dissolve", "pixelize", "radial", "hblur", "zoomin",
+          "wipeleft", "wiperight", "wipeup", "wipedown", "wipetl", "wipetr", "wipebl", "wipebr",
+          "slideleft", "slideright", "slideup", "slidedown", "smoothleft", "smoothright", "smoothup", "smoothdown",
+          "coverleft", "coverright", "coverup", "coverdown", "revealleft", "revealright", "revealup", "revealdown",
+          "circleopen", "circleclose", "circlecrop", "rectcrop", "vertopen", "vertclose", "horzopen", "horzclose",
+          "diagtl", "diagtr", "diagbl", "diagbr", "hlslice", "hrslice", "vuslice", "vdslice",
+          "hlwind", "hrwind", "vuwind", "vdwind", "squeezeh", "squeezev", "distance"]
 
 
 def transition(clips, out, kinds, dur=0.4):
@@ -284,7 +288,7 @@ def parse_cues(items):
 
 # --------------------------------------------------------------------------- one-shot build
 def build(plan_path):
-    """JSON plan -> finished video. Order: cut_silence -> reframe -> speed -> zoom -> shake -> grade -> captions -> sfx -> music -> loudnorm -> export.
+    """JSON plan -> finished video. Order: cut_silence -> reframe -> speed -> effects -> zoom -> shake -> grade -> overlays -> captions -> sfx -> music -> loudnorm -> export.
     Every time in the plan refers to the timeline AFTER speed ramps (so plan speed first, then place effects)."""
     plan = json.load(open(plan_path, encoding="utf-8"))
     tmp = tempfile.mkdtemp()
@@ -305,6 +309,11 @@ def build(plan_path):
                         "--x-offset", str(plan["reframe"].get("x_offset", 0))], check=True, capture_output=True); cur = o
     if plan.get("speed"):
         o = nxt(); speed_ramp(cur, o, [tuple(x) for x in plan["speed"]]); cur = o
+    if plan.get("effects"):
+        import fx_pack
+        for ef in plan["effects"]:     # list length-changing ones (freeze/reverse/stutter) first
+            o = nxt(); at = ef.get("at"); s0, e0 = (None, None) if at is None else (at[0], at[1] if len(at) > 1 else None)
+            fx_pack.apply(ef["name"], [cur] + list(ef.get("inputs", [])), o, s0, e0, ef.get("p")); cur = o
     if plan.get("zooms"):
         o = nxt(); punch_zoom(cur, o, [tuple(x) for x in plan["zooms"]], tuple(plan.get("zoom_focus", (0.5, 0.4)))); cur = o
     if plan.get("shakes"):
@@ -312,6 +321,13 @@ def build(plan_path):
     if plan.get("grade"):
         g = plan["grade"]; o = nxt()
         grade(cur, o, g.get("look", "cinematic"), g.get("grain", 0.3), g.get("vignette", 0.25)); cur = o
+    if plan.get("overlays"):
+        import mg
+        for ov in plan["overlays"]:    # motion-graphic templates rendered with alpha and composited at a time
+            mov = os.path.join(tmp, f"mg{step[0]}.mov"); o = nxt()
+            mg.W, mg.H = W, H
+            mg.render(ov["template"], mov, ov.get("dur"), None, None, {k: str(v) for k, v in ov.get("p", {}).items()})
+            mg.overlay(cur, mov, o, ov.get("at", 0.0)); cur = o
     if plan.get("subs"):
         s = plan["subs"]; o = nxt()
         animated_subs(cur, s["srt"], o, s.get("lang", "ar"), s.get("style", "hormozi"), s.get("words", 3), s.get("font")); cur = o
@@ -320,8 +336,11 @@ def build(plan_path):
         sfx_mix(cur, o, [(c["t"], c["name"], c.get("db", -12)) for c in plan["sfx"]], plan.get("sfx_dir", SFX_DIR)); cur = o
     if plan.get("music"):
         m = plan["music"]; o = nxt()
+        mf = m["file"]
+        if not os.path.isfile(mf):     # allow bare names of the bundled beds, e.g. "bed_hype_trap_140"
+            mf = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "music", mf + ("" if mf.endswith(".mp3") else ".mp3"))
         subprocess.run([sys.executable, os.path.join(os.path.dirname(__file__), "reel_tools.py"), "mix-music",
-                        cur, m["file"], o, "--music-db", str(m.get("db", -14))], check=True, capture_output=True)
+                        cur, mf, o, "--music-db", str(m.get("db", -14))], check=True, capture_output=True)
         cur = o
     if plan.get("loudnorm", True):
         o = nxt()

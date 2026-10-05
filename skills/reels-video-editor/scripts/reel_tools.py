@@ -145,11 +145,15 @@ def cmd_loudnorm(a):
 
 def cmd_mix_music(a):
     vol = f"volume={a.music_db}dB"
-    fc = (f"[1:a]{vol},aloop=loop=-1:size=2e9[m];"
-          f"[m][0:a]sidechaincompress=threshold=0.04:ratio=8:attack=20:release=400[duck];"
-          f"[0:a][duck]amix=inputs=2:duration=first:normalize=0[a]")
+    if has_audio(a.input):
+        fc = (f"[1:a]{vol},aloop=loop=-1:size=2e9[m];"
+              f"[m][0:a]sidechaincompress=threshold=0.04:ratio=8:attack=20:release=400[duck];"
+              f"[0:a][duck]amix=inputs=2:duration=first:normalize=0[a]")
+    else:  # silent video: the music becomes the soundtrack (looped/trimmed to the video length) with short fades
+        dur = float(probe_data(a.input)["format"]["duration"])
+        fc = f"[1:a]{vol},aloop=loop=-1:size=2e9,atrim=0:{dur:.3f},afade=t=in:d=0.3,afade=t=out:st={max(0, dur - 0.6):.3f}:d=0.6[a]"
     run(["ffmpeg", "-y", "-i", a.input, "-i", a.music, "-filter_complex", fc,
-         "-map", "0:v", "-map", "[a]", "-c:v", "copy", "-c:a", "aac", "-b:a", "128k",
+         "-map", "0:v", "-map", "[a]", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-ar", "48000",
          "-shortest", "-movflags", "+faststart", a.output])
     print(a.output)
 
